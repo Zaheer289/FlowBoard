@@ -1,0 +1,39 @@
+MERN Project (FlowBoard)
+
+Frontend:
+Set up using vite
+Install vite, react-router, axios, tailwind
+
+Backend:
+
+Initialise npm project
+
+install express, mongoose, dotenv, nodemon
+
+package.json -> type: module -> scripts: dev: nodemon <path>
+
+Sign in to mongoDB -> Create project -> set up use rid and password -> copy connection string -> paste connection string in .env file
+
+Create server.js -> Create express app here -> import dotenv -> dotenv.config()-> connectDB function
+app.use("common path", route)
+app.use(express.json())
+app.use(cors({origin: [localhost:5000], methods: [API METHODS]credentials: true
+
+hide .env file by adding it to .gitignore
+
+create a routes folder -> categoryRoutes.js -> router = express.Router()
+
+create a controllers folder -> Create all REST API endpoints function
+
+add controllers, notes, config, server.js in src file
+
+create db.js in config folder -> import mongoose -> create async function "connectDB" with try.. catch.... -> conn = await mongoose.connect(process.env.URI) catch process.exit(1)
+
+Create models folder -> <category>.model.js where you provide a function ->const categorySchema =  new Mongoose.schema({object}) 
+key is the field and value is typed and required objects). 
+const collection = Mongoose.model(collectionName, categorySchema)
+
+GET = collection.find()
+POST = collection.save()
+PUT = collection.findByIdAndUpdate(req.params.id)
+DELETE = collection.findByIdAndDelete(req.params.id)
