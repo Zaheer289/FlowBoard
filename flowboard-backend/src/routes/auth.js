@@ -41,10 +41,27 @@ router.post("/login", async (req,res) => {
     try{
         const user = await User.findOne({email});
         if (!user) return res.status(401).json({message: "Invalid Credentials!"});
+
         const valid = await user.verifyPassword(password);
         if (!valid) return res.status(401).json({message: "Invalid Credentials!"});
+
         const accessToken= generateAccessToken(user);
         const refreshToken = generateRefreshToken(user);
+
+        res.cookie("access_token", accessToken, {
+            httpOnly: true,
+            secure: false,
+            sameSite: "lax",
+            maxAge: 20*60*1000
+        });
+
+        res.cookie("refresh_token", refreshToken, {
+            httpOnly: true,
+            secure: false,
+            sameSite: "lax",
+            maxAge: 60*60*1000*24*20
+        });
+
         res.status(200).json({message: "Logged in successfully!", accessToken, refreshToken});
     }
     catch(err){
