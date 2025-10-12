@@ -28,5 +28,23 @@ router.post("/login", async (req, res) => {
             error: err.message
         })
     }
+});
+
+router.post("/login", async (req,res) => {
+    const {email, password} = req.body;
+
+    try{
+        const user = await User.findOne({email});
+        if (!user) return res.status(401).json({message: "Invalid Credentials!"});
+        const valid = await user.verifyPassword(password);
+        if (!valid) return res.status(401).json({message: "Invalid Credentials!"});
+        res.status(200).json({message: "Logged in successfully!"});
+    }
+    catch(err){
+        res.status(500).json({
+            message: "Error registering user",
+            error: err.message
+        })
+    }
 })
 export default router;
