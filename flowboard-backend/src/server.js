@@ -3,7 +3,7 @@ import express from "express";
 import {connectDB} from './config/db.js'
 import cors from 'cors';
 import cookieParser from "cookie-parser";
-import authRouter from "./routes/auth.js";
+import authRouter from "./routes/authRoutes.js";
 
 dotenv.config();
 

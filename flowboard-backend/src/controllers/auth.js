@@ -1,13 +1,27 @@
-import mongoose from "mongoose";
+import jwt from 'jsonwebtoken';
 import bcrypt from "bcrypt";
-import express from "express";
 import User from "../models/User.js";
 import { validatePassword } from "../utils/validatePassword.js";
 import { generateAccessToken, generateRefreshToken } from "../utils/jwt.js";
 
-const router = express.Router();
+export const refreshAccessToken = (req, res) => {
+    const refreshToken = req.cookies.refresh_token;
 
-router.post("/register", async (req, res) => {
+    if(!refreshToken) return res.status(401).json({message: "No refresh token provided."});
+
+    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_JWT, (err, payload) =>{
+        if(err) return res.status(403).json({message: "Invalid or expired refresh token.", error: err});
+        const newAccessToken = generateAccessToken(payload);
+        res.cookie("access_token", newAccessToken, {
+            httpOnly: true,
+            secure: false,
+            sameSite: "lax",
+            maxAge: 20 * 60 * 1000,
+        });
+        return res.status(200).json({message: "Access token refreshed successfully."})
+    })
+}
+export const registerUser = async (req, res) => {
     const {username, email, password} = req.body;
     try{
         const user = await User.findOne({email});
@@ -33,9 +47,9 @@ router.post("/register", async (req, res) => {
             error: err.message
         })
     }
-});
+}
 
-router.post("/login", async (req,res) => {
+export const logInUser = async (req,res) => {
     const {email, password} = req.body;
 
     try{
@@ -69,5 +83,4 @@ router.post("/login", async (req,res) => {
             error: err.message
         })
     }
-})
-export default router;
+}
