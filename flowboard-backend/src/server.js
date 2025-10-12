@@ -3,6 +3,7 @@ import express from "express";
 import {connectDB} from './config/db.js'
 import cors from 'cors';
 import cookieParser from "cookie-parser";
+import authRouter from "./routes/auth.js";
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ app.get('/',(req,res)=>{
     res.send("Hello world!")
 
 })
+app.use("/api/auth",authRouter);
 connectDB();
 app.listen(PORT, ()=>{
     console.log(`app listening on port: ${PORT}`)

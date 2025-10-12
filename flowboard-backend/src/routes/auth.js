@@ -44,10 +44,9 @@ router.post("/login", async (req,res) => {
 
         const valid = await user.verifyPassword(password);
         if (!valid) return res.status(401).json({message: "Invalid Credentials!"});
-
         const accessToken= generateAccessToken(user);
         const refreshToken = generateRefreshToken(user);
-
+       
         res.cookie("access_token", accessToken, {
             httpOnly: true,
             secure: false,
@@ -66,7 +65,7 @@ router.post("/login", async (req,res) => {
     }
     catch(err){
         res.status(500).json({
-            message: "Error registering user",
+            message: "Error logging in user",
             error: err.message
         })
     }

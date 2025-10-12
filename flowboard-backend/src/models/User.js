@@ -37,7 +37,7 @@ const userSchema = new mongoose.Schema({
 },{timestamps: true});
 
 userSchema.methods.verifyPassword = async function (password) {
-    return bcrypt.compare(password, this.passworddHash);
+    return bcrypt.compare(password, this.passwordHash);
 };
 
 const User = mongoose.model("User",userSchema);
