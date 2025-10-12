@@ -3,10 +3,11 @@ import bcrypt from "bcrypt";
 import express from "express";
 import User from "../models/User.js";
 import { validatePassword } from "../utils/validatePassword.js";
+import { generateAccessToken, generateRefreshToken } from "../utils/jwt.js";
 
 const router = express.Router();
 
-router.post("/login", async (req, res) => {
+router.post("/register", async (req, res) => {
     const {username, email, password} = req.body;
     try{
         const user = await User.findOne({email});
@@ -42,7 +43,9 @@ router.post("/login", async (req,res) => {
         if (!user) return res.status(401).json({message: "Invalid Credentials!"});
         const valid = await user.verifyPassword(password);
         if (!valid) return res.status(401).json({message: "Invalid Credentials!"});
-        res.status(200).json({message: "Logged in successfully!"});
+        const accessToken= generateAccessToken(user);
+        const refreshToken = generateRefreshToken(user);
+        res.status(200).json({message: "Logged in successfully!", accessToken, refreshToken});
     }
     catch(err){
         res.status(500).json({
