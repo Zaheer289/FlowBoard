@@ -1,0 +1,22 @@
+.login-title{
+  font-family: "Offside", sans-serif;
+}
+
+.grid-background::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Floating shapes animation */
+@keyframes float {
+  0% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+  33% { transform: translateY(-20px) translateX(20px) rotate(20deg); }
+  66% { transform: translateY(20px) translateX(-20px) rotate(20deg); }
+  100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+}
