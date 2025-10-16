@@ -9,13 +9,14 @@ import TermsConditions from './pages/TermsConditions';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Home from './pages/Home';
 import Settings from './pages/Settings';
+import Sidebar from './pages/components/Sidebar';
 
 function App() {
   return(
     <Routes>
       <Route index element={<Home />}></Route>
       <Route path="/settings" element={<Settings />} />
-      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/dashboard" element={<><Sidebar /><Dashboard /></>} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/community" element={<Community />} />

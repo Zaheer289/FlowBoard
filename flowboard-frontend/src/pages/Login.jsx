@@ -98,12 +98,12 @@ function Login() {
             value={formData.password}
             onChange={handleChange}
             required
-            className="w-full p-3 rounded-l-lg border border-cyan-700 outline-none text-white"
+            className="w-full p-3 rounded-l-lg outline-none text-white"
           />
           <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="text-white bg-cyan-700 p-3 rounded-r-lg border border-cyan-700"
+                className="text-white bg-cyan-700 p-3 rounded-r-lg"
             >
                 {showPassword ? <FiEyeOff /> : <FiEye />}
             </button>

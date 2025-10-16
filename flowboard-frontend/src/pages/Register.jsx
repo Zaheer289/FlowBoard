@@ -152,7 +152,7 @@ function Register() {
             value={formData.password}
             onChange={handleChange}
             required
-            className="w-full p-3 rounded-l-lg border border-cyan-700 outline-none text-white"
+            className="w-full p-3 rounded-l-lg outline-none text-white"
           />
           <button
                 type="button"
@@ -170,7 +170,7 @@ function Register() {
             value={formData.confirmPassword}
             onChange={handleChange}
             required
-            className="w-full p-3 rounded-l-lg border border-cyan-700 outline-none text-white"
+            className="w-full p-3 rounded-l-lg outline-none text-white"
           />
           <button
                 type="button"
