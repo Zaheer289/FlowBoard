@@ -7,11 +7,13 @@ import Projects from './pages/Projects';
 import './app.css';
 import TermsConditions from './pages/TermsConditions';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import Home from './pages/Home';
 
 function App() {
   return(
     <Routes>
-      <Route index element={<Dashboard />} />
+      <Route index element={<Home />}></Route>
+      <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/community" element={<Community />} />
