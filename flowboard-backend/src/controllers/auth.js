@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from "bcrypt";
 import User from "../models/User.js";
-import { validatePassword } from "../utils/validatePassword.js";
+import { validatePassword, validateEmail, validateUsername } from "../utils/validateCredentials.js";
 import { generateAccessToken, generateRefreshToken } from "../utils/jwt.js";
 
 export const refreshAccessToken = (req, res) => {
@@ -26,7 +26,17 @@ export const registerUser = async (req, res) => {
     try{
         const user = await User.findOne({email});
         if(user){
-            return res.status(400).json({message: "User already exists!"});
+            return res.status(400).json({message: "Email is taken."});
+        }
+        const existingUser = await User.findOne({ username });
+        if (existingUser) {
+            return res.status(400).json({ message: "Username already exists" });
+        }
+        if(!validateUsername(username)){
+            return res.status(400).json({message: "Username must be between 8 and 32 characters (inclusive)."});
+        }
+        if(!validateEmail(email)){
+            return res.status(400).json({message: "Please enter a valid email!"});
         }
         if(!validatePassword(password)){
             return res.status(400).json({message: "Password must be at least 8 characters long and include uppercase, lowercase, number, and symbol."});
@@ -54,10 +64,10 @@ export const logInUser = async (req,res) => {
 
     try{
         const user = await User.findOne({email});
-        if (!user) return res.status(401).json({message: "Invalid Credentials!"});
+        if (!user) return res.status(401).json({message: "Invalid username or password."});
 
         const valid = await user.verifyPassword(password);
-        if (!valid) return res.status(401).json({message: "Invalid Credentials!"});
+        if (!valid) return res.status(401).json({message: "Invalid username or password."});
         const accessToken= generateAccessToken(user);
         const refreshToken = generateRefreshToken(user);
        
@@ -75,7 +85,7 @@ export const logInUser = async (req,res) => {
             maxAge: 60*60*1000*24*20
         });
 
-        res.status(200).json({message: "Logged in successfully!", accessToken, refreshToken});
+        res.status(200).json({message: "Logged in successfully!"});
     }
     catch(err){
         res.status(500).json({

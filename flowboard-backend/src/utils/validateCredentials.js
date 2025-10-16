@@ -19,3 +19,16 @@ export const validatePassword = (password) => {
     return (containsLower&&containsNumber&&containsSymbol&&containsUpper);
 
 }
+export const validateEmail = (email) => {
+    const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,63}$/
+    if(!emailRegex.test(email)){
+        return false;
+    }
+    return true;
+}
+export const validateUsername = (name) =>{
+    if(name.length>32 || name.length<8){
+        return false;
+    }
+    return true;
+}

@@ -1,5 +1,6 @@
 import './styles/login.css'
 import { useState } from 'react';
+import api from '../api/axios.js';
 function Login() {
   const shapes = [
     { size: 20, color: 'bg-red-400', top: 'top-[10%]', left: 'left-[15%]', delay: '0s' },
@@ -8,9 +9,15 @@ function Login() {
     { size: 12, color: 'bg-teal-400', top: 'top-[80%]', left: 'left-[80%]', delay: '3s' },
     { size: 22, color: 'bg-pink-300', top: 'top-[15%]', left: 'left-[70%]', delay: '4s' },
   ];
+  let showError = false;
+  let errorText = "";
   const [formData, setFormData] = useState({
       email: "",
       password: "",
+    })
+    const [error, setError] = useState({
+        isError: false,
+        errorText: ""
     })
     const handleChange = (event) => {
         const {name, value} = event.target;
@@ -19,9 +26,32 @@ function Login() {
             [name]: value
         })
     }
-    const submitHandler = (event) => {
+    const displayErrorMessage = (message) =>{
+        setError({
+            isError: true,
+            errorText: message,
+        })
+        setTimeout(() =>{
+            setError({
+            isError: false,
+            errorText: "",
+        })
+        },3000)
+    }
+    const submitHandler = async (event) => {
         event.preventDefault();
-        console.log(formData);
+        try{
+            const response = await api.post('/auth/login',formData);
+            console.log(response.status,response.data.message);
+            if(response.status!==200){
+                displayErrorMessage(response.data.message);
+            }
+        }
+        catch(err){
+            console.log(err.response.data);
+            displayErrorMessage(err.response.data.message);
+        }
+
     }
 
   return (
@@ -74,6 +104,7 @@ function Login() {
           >
             Log In
           </button>
+          <p className={error.isError?"opacity-100 text-red-600 text-md": "opacity-0"}>{error.errorText}</p>
         </form>
       </div>
       </div>
