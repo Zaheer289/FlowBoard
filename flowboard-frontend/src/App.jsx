@@ -8,11 +8,13 @@ import './app.css';
 import TermsConditions from './pages/TermsConditions';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Home from './pages/Home';
+import Settings from './pages/Settings';
 
 function App() {
   return(
     <Routes>
       <Route index element={<Home />}></Route>
+      <Route path="/settings" element={<Settings />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
