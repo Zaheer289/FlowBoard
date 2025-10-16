@@ -10,6 +10,7 @@ function Login() {
     { size: 12, color: 'bg-teal-400', top: 'top-[80%]', left: 'left-[80%]', delay: '3s' },
     { size: 22, color: 'bg-pink-300', top: 'top-[15%]', left: 'left-[70%]', delay: '4s' },
   ];
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
       email: "",
       password: "",
