@@ -16,7 +16,7 @@ function App() {
     <Routes>
       <Route index element={<Home />}></Route>
       <Route path="/settings" element={<Settings />} />
-      <Route path="/dashboard" element={<><Sidebar /><Dashboard /></>} />
+      <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/community" element={<Community />} />
