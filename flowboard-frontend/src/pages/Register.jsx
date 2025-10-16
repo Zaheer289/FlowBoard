@@ -1,8 +1,10 @@
 import "./styles/login.css";
 import { useState } from "react";
 import api from "../api/axios";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 function Register() {
+    const [showPassword, setShowPassword] = useState(false);
   const shapes = [
     {
       size: 20,
@@ -142,24 +144,42 @@ function Register() {
               onChange={handleChange}
               className="p-3 rounded-lg border border-cyan-700 focus:border-cyan-600 focus:ring focus:ring-cyan-300 outline-none text-white"
             />
+            <div className='flex w-full rounded-lg border border-cyan-700 focus-within:ring-2 focus-within:ring-cyan-300 focus-within:border-cyan-600'>
             <input
-              type="password"
-              placeholder="Password"
-              name="password"
-              required
-              value={formData.pass}
-              onChange={handleChange}
-              className="p-3 rounded-lg border border-cyan-700 focus:border-cyan-600 focus:ring focus:ring-cyan-300 outline-none text-white"
-            />
+            type={showPassword? "text": "password"}
+            placeholder="Password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+            className="w-full p-3 rounded-l-lg border border-cyan-700 outline-none text-white"
+          />
+          <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="text-white bg-cyan-700 p-3 rounded-r-lg border border-cyan-700"
+            >
+                {showPassword ? <FiEyeOff /> : <FiEye />}
+            </button>
+          </div>
+            <div className='flex w-full rounded-lg border border-cyan-700 focus-within:ring-2 focus-within:ring-cyan-300 focus-within:border-cyan-600'>
             <input
-              type="password"
-              placeholder="Retype Password"
-              required
-              name="confirmPassword"
-              value={formData.confirmPass}
-              onChange={handleChange}
-              className="p-3 rounded-lg border border-cyan-700 focus:border-cyan-600 focus:ring focus:ring-cyan-300 outline-none text-white"
-            />
+            type={showPassword? "text": "password"}
+            placeholder="Re-enter Password"
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            required
+            className="w-full p-3 rounded-l-lg border border-cyan-700 outline-none text-white"
+          />
+          <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="text-white bg-cyan-700 p-3 rounded-r-lg border border-cyan-700"
+            >
+                {showPassword ? <FiEyeOff /> : <FiEye />}
+            </button>
+          </div>
             <label className="flex items-center text-sm text-gray-300">
               <input
                 type="checkbox"

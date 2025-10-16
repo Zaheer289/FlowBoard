@@ -1,6 +1,7 @@
 import './styles/login.css'
 import { useState } from 'react';
 import api from '../api/axios.js';
+import { FiEye, FiEyeOff } from "react-icons/fi";
 function Login() {
   const shapes = [
     { size: 20, color: 'bg-red-400', top: 'top-[10%]', left: 'left-[15%]', delay: '0s' },
@@ -9,8 +10,6 @@ function Login() {
     { size: 12, color: 'bg-teal-400', top: 'top-[80%]', left: 'left-[80%]', delay: '3s' },
     { size: 22, color: 'bg-pink-300', top: 'top-[15%]', left: 'left-[70%]', delay: '4s' },
   ];
-  let showError = false;
-  let errorText = "";
   const [formData, setFormData] = useState({
       email: "",
       password: "",
@@ -86,17 +85,28 @@ function Login() {
             placeholder="Email"
             name="email"
             onChange={handleChange}
+            value={formData.email}
             required
             className="p-3 rounded-lg border border-cyan-700 focus:border-cyan-600 focus:ring focus:ring-cyan-300 outline-none text-white"
           />
-          <input
-            type="password"
+          <div className='flex w-full rounded-lg border border-cyan-700 focus-within:ring-2 focus-within:ring-cyan-300 focus-within:border-cyan-600'>
+            <input
+            type={showPassword? "text": "password"}
             placeholder="Password"
             name="password"
+            value={formData.password}
             onChange={handleChange}
             required
-            className="p-3 rounded-lg border border-cyan-700 focus:border-cyan-600 focus:ring focus:ring-cyan-300 outline-none text-white"
+            className="w-full p-3 rounded-l-lg border border-cyan-700 outline-none text-white"
           />
+          <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="text-white bg-cyan-700 p-3 rounded-r-lg border border-cyan-700"
+            >
+                {showPassword ? <FiEyeOff /> : <FiEye />}
+            </button>
+          </div>
           <button
             type="submit"
             className="p-3 rounded-lg bg-cyan-700 text-white font-bold hover:bg-blue-900 transition"
