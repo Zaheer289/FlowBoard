@@ -30,8 +30,8 @@ function Dashboard(){
     return (
 
     <div className="flex min-h-screen">
-      <Sidebar />    
-      <main className="ml-[0%] md:ml-[25%] xl:ml-[20%] flex-1 bg-zinc-900 text-white">
+      <Sidebar className="w-1/4 xl:w-1/5 hidden md:block" />    
+      <main className="ml-[0%] md:ml-[25%] xl:ml-[20%] flex-1 bg-zinc-900 text-white w-full md:w-3/4 xl:w-4/5">
         <div className="flex items-center justify-between mb-6 px-8 border border-0 border-b-3 border-b-cyan-500 py-4">
             <div className="w-2/3 text-md flex items-center border border-cyan-600 focus-within:border-cyan-500 rounded-xl">
                 <input type="text" className="p-3 border rounded-l-xl text-white flex-1 border-none outline-none" placeholder="Type here to search..."/>
@@ -47,7 +47,9 @@ function Dashboard(){
                     
                     <h1 className="text-2xl text-white mb-3">Recent Projects</h1>
                     <hr className="mx-auto w- h-[3px] border-0 bg-zinc-500 mb-3" />
-                    <ProjectList projectList={projectList} />
+                    <div className="">
+                        <ProjectList projectList={projectList} />
+                    </div>
                 </div>
             </div>
             <div className="bg-zinc-700 mt-8 mb-16 rounded-3xl">

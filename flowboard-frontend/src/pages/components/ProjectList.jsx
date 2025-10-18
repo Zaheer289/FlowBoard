@@ -49,16 +49,13 @@ function ProjectList({ projectList }) {
 
   return (
     <Carousel className="w-full">
-      <CarouselContent className={`grid gap-4 ${colsMap[visibleCount]}`}>
+      <CarouselContent className="flex">
         {project.map((item, idx) => (
           <CarouselItem key={idx} className="sm:basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
             <ProjectCard item={item} setArchive={() => setArchive(item.id)} />
           </CarouselItem>
         ))}
       </CarouselContent>
-
-      <CarouselPrevious />
-      <CarouselNext />
     </Carousel>
   )
 }
