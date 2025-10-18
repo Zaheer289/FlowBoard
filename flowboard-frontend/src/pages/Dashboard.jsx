@@ -4,26 +4,26 @@ import { FiSearch } from "react-icons/fi";
 
 function Dashboard(){
     const projectList = [
-  { name: "Project Mu", lastEdited: "2025-10-21", image: "public/signup.jpg", starred: false, archived: false },
-  { name: "Project Alpha", lastEdited: "2025-10-10", image: "public/login.jpg", starred: false, archived: false },
-  { name: "Project Pi", lastEdited: "2025-10-25", image: "public/signup.jpg", starred: false, archived: false },
-  { name: "Project Iota", lastEdited: "2025-10-18", image: "public/login.jpg", starred: false, archived: false },
-  { name: "Project Nu", lastEdited: "2025-10-22", image: "public/signup.jpg", starred: false, archived: false },
-  { name: "Project Theta", lastEdited: "2025-10-17", image: "public/login.jpg", starred: false, archived: false },
-  { name: "Project Tau", lastEdited: "2025-10-28", image: "public/signup.jpg", starred: false, archived: false },
-  { name: "Project Kappa", lastEdited: "2025-10-19", image: "public/login.jpg", starred: false, archived: false },
-  { name: "Project Omicron", lastEdited: "2025-10-24", image: "public/signup.jpg", starred: false, archived: false },
-  { name: "Project Zeta", lastEdited: "2025-10-15", image: "public/login.jpg", starred: false, archived: false },
-  { name: "Project Sigma", lastEdited: "2025-10-27", image: "public/signup.jpg", starred: false, archived: false },
-  { name: "Project Delta", lastEdited: "2025-10-13", image: "public/login.jpg", starred: false, archived: false },
-  { name: "Project Rho", lastEdited: "2025-10-26", image: "public/signup.jpg", starred: false, archived: false },
-  { name: "Project Eta", lastEdited: "2025-10-16", image: "public/login.jpg", starred: false, archived: false },
-  { name: "Project Nu", lastEdited: "2025-10-22", image: "public/signup.jpg", starred: false, archived: false },
-  { name: "Project Beta", lastEdited: "2025-10-11", image: "public/login.jpg", starred: false, archived: false },
-  { name: "Project Xi", lastEdited: "2025-10-23", image: "public/signup.jpg", starred: false, archived: false },
-  { name: "Project Lambda", lastEdited: "2025-10-20", image: "public/signup.jpg", starred: false, archived: false },
-  { name: "Project Gamma", lastEdited: "2025-10-12", image: "public/login.jpg", starred: false, archived: false },
-  { name: "Project Upsilon", lastEdited: "2025-10-29", image: "public/signup.jpg", starred: false, archived: false }
+  { name: "Project Mu", lastEdited: "2025-10-21", image: "public/dashboard-card-img.png", starred: false, archived: false, id: 1 },
+  { name: "Project Alpha", lastEdited: "2025-10-10", image: "public/dashboard-card-img.png", starred: false, archived: false, id:2 },
+  { name: "Project Pi", lastEdited: "2025-10-25", image: "public/dashboard-card-img.png", starred: false, archived: false, id: 3 },
+  { name: "Project Iota", lastEdited: "2025-10-18", image: "public/dashboard-card-img.png", starred: false, archived: false, id: 4 },
+  { name: "Project Nu", lastEdited: "2025-10-22", image: "public/dashboard-card-img.png", starred: false, archived: false, id: 5 },
+  { name: "Project Theta", lastEdited: "2025-10-17", image: "public/dashboard-card-img.png", starred: false, archived: false, id: 6 },
+  { name: "Project Tau", lastEdited: "2025-10-28", image: "public/dashboard-card-img.png", starred: false, archived: false, id: 7 },
+  { name: "Project Kappa", lastEdited: "2025-10-19", image: "public/dashboard-card-img.png", starred: false, archived: false, id: 8 },
+  { name: "Project Omicron", lastEdited: "2025-10-24", image: "public/dashboard-card-img.png", starred: false, archived: false, id: 9 },
+  { name: "Project Zeta", lastEdited: "2025-10-15", image: "public/dashboard-card-img.png", starred: false, archived: false, id: 10 },
+  { name: "Project Sigma", lastEdited: "2025-10-27", image: "public/dashboard-card-img.png", starred: false, archived: false, id: 11 },
+  { name: "Project Delta", lastEdited: "2025-10-13", image: "public/dashboard-card-img.png", starred: false, archived: false, id: 12 },
+  { name: "Project Rho", lastEdited: "2025-10-26", image: "public/dashboard-card-img.png", starred: false, archived: false, id: 13 },
+  { name: "Project Eta", lastEdited: "2025-10-16", image: "public/dashboard-card-img.png", starred: false, archived: false, id: 14 },
+  { name: "Project Nu", lastEdited: "2025-10-22", image: "public/dashboard-card-img.png", starred: false, archived: false, id: 15 },
+  { name: "Project Beta", lastEdited: "2025-10-11", image: "public/dashboard-card-img.png", starred: false, archived: false, id: 16 },
+  { name: "Project Xi", lastEdited: "2025-10-23", image: "public/dashboard-card-img.png", starred: false, archived: false, id: 17 },
+  { name: "Project Lambda", lastEdited: "2025-10-20", image: "public/dashboard-card-img.png", starred: false, archived: false, id: 18 },
+  { name: "Project Gamma", lastEdited: "2025-10-12", image: "public/dashboard-card-img.png", starred: false, archived: false, id: 19 },
+  { name: "Project Upsilon", lastEdited: "2025-10-29", image: "public/dashboard-card-img.png", starred: false, archived: false, id: 20 }
 ];
 
 

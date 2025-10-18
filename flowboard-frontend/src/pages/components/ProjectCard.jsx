@@ -1,9 +1,8 @@
 import { MdStar, MdOutlineStarBorder, MdArchive, MdOutlineArchive } from "react-icons/md";
 import { useState } from "react";
-function ProjectCard({item}){
+function ProjectCard({item, setArchive}){
     
     const [isStarred, setIsStarred] = useState(item.starred || false);
-    const [isArchived, setIsArchived] = useState(item.archived || false);
     return(
 
         <div className="p-4 rounded-xl border border-zinc-500">
@@ -20,8 +19,8 @@ function ProjectCard({item}){
                 <button onClick={() => setIsStarred(!isStarred)}>
                 {isStarred ? <MdStar color="gold" size={24} /> : <MdOutlineStarBorder color="white" size={24} />}
                 </button>
-                <button onClick={() => setIsArchived(!isArchived)}>
-                {isArchived ? <MdArchive color="red" size={24} /> : <MdOutlineArchive color="white" size={24} />}
+                <button onClick={setArchive}>
+                <MdOutlineArchive color="white" size={24} />
                 </button>
             </div>
         </div>
