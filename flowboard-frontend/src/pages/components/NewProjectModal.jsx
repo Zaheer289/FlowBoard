@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import '../styles/dashboard.css'
+import '../styles/dashboard.css';
+import api from "../../api/axios.js";
 
-export default function NewProjectModal({ isOpen, onClose, onCreate }) {
+export default function NewProjectModal({ isOpen, onClose }) {
   const [formData, setFormData] = useState({
     name: "",
-    type: "file",
     visibility: "Private",
     tags: [],
     collaborators: [],
@@ -25,13 +25,23 @@ export default function NewProjectModal({ isOpen, onClose, onCreate }) {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onCreate(formData);
+    try{
+        const response = await api.post('/projects',formData);
+        console.log(response.status,response.data.message);
+        if(response.status!==201){
+          displayErrorMessage(response.data.message);
+        }
+    }
+    catch(err){
+      console.log(err.response.data);
+      displayErrorMessage(err.response.data.message);
+    }
+
     onClose();
     setFormData({
       name: "",
-      type: "file",
       visibility: "Private",
       tags: [],
       collaborators: [],
@@ -64,20 +74,6 @@ export default function NewProjectModal({ isOpen, onClose, onCreate }) {
               className="w-full p-2 border rounded-md bg-transparent"
               placeholder="Enter project name"
             />
-          </div>
-
-          {/* Type */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Project Type</label>
-            <select
-              name="type"
-              value={formData.type}
-              onChange={handleChange}
-              className="w-full p-2 border rounded-md bg-zinc-800"
-            >
-              <option value="file">File</option>
-              <option value="folder">Folder</option>
-            </select>
           </div>
 
           {/* Visibility */}

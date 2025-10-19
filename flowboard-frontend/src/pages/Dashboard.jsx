@@ -77,7 +77,7 @@ function Dashboard(){
             </div>
         </div>
       </main>
-        <NewProjectModal isOpen={isModalOpen} onClose={() => setModalOpen(false)} onCreate={() =>{}}/>
+        <NewProjectModal isOpen={isModalOpen} onClose={() => setModalOpen(false)}/>
     </div>
     )
 }

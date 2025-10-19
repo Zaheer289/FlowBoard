@@ -1,14 +1,15 @@
 import express from "express";
 import { createProject, saveProject, deleteProject, getProjects } from "../controllers/projects.js";
+import { verifyAccessToken } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.post("/projects", createProject);
+router.post("/projects", verifyAccessToken, createProject);
 
-router.put("/projects", saveProject);
+router.put("/projects", verifyAccessToken, saveProject);
 
-router.delete("/projects", deleteProject);
+router.delete("/projects", verifyAccessToken, deleteProject);
 
-router.get("/users/:id/projects", getProjects);
+router.get("/users/:id/projects", verifyAccessToken, getProjects);
 
 export default router;

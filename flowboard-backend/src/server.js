@@ -24,6 +24,7 @@ app.get('/',(req,res)=>{
 
 })
 app.use("/api/auth",authRouter);
+app.use("/api",projectRouter);
 connectDB();
 app.listen(PORT, ()=>{
     console.log(`app listening on port: ${PORT}`)
