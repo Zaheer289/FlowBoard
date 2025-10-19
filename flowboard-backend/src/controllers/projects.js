@@ -17,8 +17,34 @@ export const createProject = async (req, res) => {
     
 }
 
-export const saveProject = () => {}
+export const saveProject = async (req, res) => {}
 
-export const deleteProject = () => {}
+export const deleteProject = async (req, res) => {
+    const {projectId} = req.body;
+    try{
+        await Project.findByIdAndDelete(projectId);
+        await User.findByIdAndUpdate(req.user.id, {
+            $pull: { projects:projectId },
+        });
+        return res.status(200).json({message: "Data deleted successfully"});
+    }
+    catch(err){
+        return res.status(500).json({message: "Error deleting data"});
+    }
+}
 
-export const getProjects = () => {}
+export const getProjects = async (req, res) => {
+    const userId = req.params.id;
+    const {archived, starred} = req.query;
+    let query = {owner: userId} 
+    if(archived!== undefined) query.archived = archived==="true";     
+    else query.archived = false
+    if(starred!== undefined) query.starred = starred==="true"; 
+    
+    const projects = await Project.find(query).sort({updatedAt: -1});
+
+    
+    res.status(200).json({message: "Data retrieved successfully!", data: projects});
+
+
+}
