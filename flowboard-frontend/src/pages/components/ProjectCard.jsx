@@ -16,10 +16,10 @@ function ProjectCard({item, setArchive}){
             Last edited: {new Date(item.lastEdited).toLocaleDateString()}
           </p>
             <div className="flex mt-2 gap-4">
-                <button onClick={() => setIsStarred(!isStarred)}>
+                <button onClick={() => setIsStarred(!isStarred)} className="cursor-pointer">
                 {isStarred ? <MdStar color="gold" size={24} /> : <MdOutlineStarBorder color="white" size={24} />}
                 </button>
-                <button onClick={setArchive}>
+                <button onClick={setArchive} className="cursor-pointer">
                 <MdOutlineArchive color="white" size={24} />
                 </button>
             </div>

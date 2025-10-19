@@ -17,23 +17,28 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     profilePicture: {
-        type: String
+        type: String,
+        default: "/public/anonymous-pfp.jpeg",
     },
     projects: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Project"
+        ref: "Project",
     }],
     sharedProjects: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Project"
+        ref: "Project",
     }],
     likedProjects: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Project"
+        ref: "Project",
     }],
-    savedProjects: [{
+    starredProjects: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Project"
+        ref: "Project",
+    }],
+    archivedProjects: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Project",
     }],
 },{timestamps: true});
 

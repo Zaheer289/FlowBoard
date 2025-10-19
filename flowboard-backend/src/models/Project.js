@@ -25,11 +25,6 @@ const projectSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    type: {
-        type: String,
-        required: true,
-        enum: ["file","folder"]
-    },
     owner: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
@@ -39,18 +34,9 @@ const projectSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     }],
-    parent: {
+    content: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Project",
-        default: null
-    },
-    children: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Project"
-    }],
-    elements: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Element"
+        ref: "Element",
     }],
     visibility: {
         type: String,
@@ -58,21 +44,25 @@ const projectSchema = new mongoose.Schema({
         default: "Private"
     },
     tags: [{
-        type: String
+        type: String,
     }],
-    likes: [{
+    likes: {
         type: Number,
         default: 0
-    }],
-    views: [{
+    },
+    views: {
         type: Number,
         default: 0
-    }],
+    },
     forkCount: {
         type: Number,
         default: 0
     },
     comments: [commentSchema],
+    thumbnail: {
+        type: String,
+        default: "/public/default.png"
+    }
 }, {timestamps:true})
 
 const Project = mongoose.model("Project", projectSchema);
