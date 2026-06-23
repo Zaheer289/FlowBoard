@@ -58,14 +58,18 @@ function Dashboard(){
                 <div className="p-6">
                     <h1 className="text-2xl text-white mb-3">Starred Projects</h1>
                     <hr className="mx-auto w- h-[3px] border-0 bg-zinc-500 mb-3" />
-                    {/*Insert recent projects container here.... */}
+                    <div className="">
+                        <ProjectList projectList={projectList.filter(p => p.id % 2 === 0)} />
+                    </div>
                 </div>
             </div>
             <div className="bg-zinc-700 mt-8 mb-16 rounded-3xl">
                 <div className="p-6">
                     <h1 className="text-2xl text-white mb-3">Shared Projects</h1>
                     <hr className="mx-auto w- h-[3px] border-0 bg-zinc-500 mb-3" />
-                    {/*Insert recent projects container here.... */}
+                    <div className="">
+                        <ProjectList projectList={projectList.slice(0, 5)} />
+                    </div>
                 </div>
             </div>
             <div className="bg-zinc-700 mt-8 mb-16 rounded-3xl">

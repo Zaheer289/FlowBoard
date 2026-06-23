@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import ProjectCard from "./ProjectCard";
+import Autoplay from "embla-carousel-autoplay";
 
 import {
   Carousel,
@@ -10,11 +11,7 @@ import {
 } from "@/components/ui/carousel";
 
 function ProjectList({ projectList }) {
-  const [viewIndex, setViewIndex] = useState(0);
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [project, setProject] = useState(projectList);
-  const colsMap = { 1: "grid-cols-1", 2: "grid-cols-2", 3: "grid-cols-3", 4: "grid-cols-4" };
-  const delay = 5000;
 
   const setArchive = (idx) => {
     setProject(prevList =>
@@ -22,40 +19,28 @@ function ProjectList({ projectList }) {
     );
   }
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setViewIndex(prev => (prev + 1) % project.length);
-    }, delay);
-    return () => clearInterval(interval);
-  }, [project]);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth);
-    }
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  const visibleCount =
-    windowWidth < 640 ? 1 :
-      windowWidth < 1024 ? 2 :
-        windowWidth < 1280 ? 3 : 4;
-
-  const visibleList = [];
-  for (let i = 0; i < visibleCount; i++) {
-    visibleList.push(project[(viewIndex + i) % project.length]);
-  }
+  // Gracefully determine if looping is needed based on item count (e.g. if more than 4, it will loop on large screens)
+  const shouldLoop = project.length > 4;
 
   return (
-    <Carousel className="w-full">
+    <Carousel 
+      className="w-full px-12"
+      opts={{ loop: true, align: "start" }}
+      plugins={[Autoplay({ delay: 3000, stopOnInteraction: true })]}
+    >
       <CarouselContent className="flex">
         {project.map((item, idx) => (
-          <CarouselItem key={idx} className="sm:basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+          <CarouselItem key={item.id || idx} className="sm:basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
             <ProjectCard item={item} setArchive={() => setArchive(item.id)} />
           </CarouselItem>
         ))}
       </CarouselContent>
+      {shouldLoop && (
+        <>
+          <CarouselPrevious className="hidden md:flex" />
+          <CarouselNext className="hidden md:flex" />
+        </>
+      )}
     </Carousel>
   )
 }
