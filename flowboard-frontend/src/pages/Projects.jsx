@@ -1,19 +1,37 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import api from "../api/axios.js";
 import ShapeSidebar from "./components/ShapeSidebar";
 import CanvasBoard from "./components/CanvasBoard";
 import PropertySidebar from "./components/PropertySidebar";
 import { FiChevronLeft, FiChevronRight, FiShare2, FiSave } from "react-icons/fi";
 import homeIcon from '../assets/images/flowboard-logo.png';
+
 function Projects(){
+    const { id } = useParams();
+    const [project, setProject] = useState(null);
     const [showLeft, setShowLeft] = useState(true);
     const [showRight, setShowRight] = useState(true);
+
+    useEffect(() => {
+        if (!id) return;
+        const fetchProject = async () => {
+            try {
+                const response = await api.get(`/projects/${id}`);
+                setProject(response.data.data);
+            } catch(err) {
+                console.error("Failed to fetch project details", err);
+            }
+        };
+        fetchProject();
+    }, [id]);
 
     return (
         <div className="h-screen flex flex-col">
             <div className="flex justify-between items-center py-3 px-6 bg-[#222] border-b border-cyan-700">
                 <div className="flex justify-start gap-6 items-center">
                     <img src={homeIcon} alt="flowboard home icon" className="w-12 h-12 p-2 bg-sky-950 rounded-md"/>
-                    <h2 className="text-xl text-white">Project Name</h2>
+                    <h2 className="text-xl text-white">{project?.name || 'Loading...'}</h2>
                     
                 </div>
                 

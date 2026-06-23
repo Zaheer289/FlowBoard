@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import '../styles/dashboard.css';
 import api from "../../api/axios.js";
+import { useNavigate } from "react-router-dom";
 
 export default function NewProjectModal({ isOpen, onClose }) {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     visibility: "Private",
@@ -30,13 +32,18 @@ export default function NewProjectModal({ isOpen, onClose }) {
     try{
         const response = await api.post('/projects',formData);
         console.log(response.status,response.data.message);
-        if(response.status!==201){
-          displayErrorMessage(response.data.message);
+        if(response.status === 201) {
+            const newProjectId = response.data.body._id;
+            onClose();
+            navigate(`/projects/${newProjectId}`);
+            return;
+        } else {
+            console.error(response.data.message);
         }
     }
     catch(err){
-      console.log(err.response.data);
-      displayErrorMessage(err.response.data.message);
+      console.log(err.response?.data);
+      console.error(err.response?.data?.message || err.message);
     }
 
     onClose();

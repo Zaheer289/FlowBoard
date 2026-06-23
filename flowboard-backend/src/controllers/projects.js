@@ -9,7 +9,7 @@ export const createProject = async (req, res) => {
         await User.findByIdAndUpdate(payload.owner, {
             $push: { projects: newProject._id },
         });
-        return res.status(201).json({message: "Data saved successfully", body: payload});
+        return res.status(201).json({message: "Data saved successfully", body: newProject});
     }
     catch(err){
         return res.status(500).json({message: "Error saving data"});
@@ -46,5 +46,18 @@ export const getProjects = async (req, res) => {
     
     res.status(200).json({message: "Data retrieved successfully!", data: projects});
 
-
 }
+
+export const getProjectById = async (req, res) => {
+    try {
+        const project = await Project.findById(req.params.id);
+        if (!project) return res.status(404).json({ message: "Project not found" });
+        // Optional: Ensure the user requesting this is the owner
+        if (project.owner.toString() !== (req.user.id || req.user._id).toString()) {
+            return res.status(403).json({ message: "Unauthorized access to this project" });
+        }
+        res.status(200).json({ message: "Data retrieved successfully!", data: project });
+    } catch (err) {
+        res.status(500).json({ message: "Error retrieving project" });
+    }
+};

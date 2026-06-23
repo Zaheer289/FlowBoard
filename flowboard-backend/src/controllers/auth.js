@@ -95,7 +95,17 @@ export const logInUser = async (req,res) => {
     }
 }
 
-export const verifyAuth = (req, res) => {
-    // If the middleware verifyAccessToken passes, req.user will be populated
-    return res.status(200).json({ message: "Authenticated", user: req.user });
+export const verifyAuth = async (req, res) => {
+    try {
+        // req.user is populated by verifyAccessToken middleware with the decoded JWT payload
+        const user = await User.findById(req.user.id || req.user._id).select('-passwordHash');
+        
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        
+        return res.status(200).json({ message: "Authenticated", user });
+    } catch (error) {
+        return res.status(500).json({ message: "Error verifying user details", error: error.message });
+    }
 };

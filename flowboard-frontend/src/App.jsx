@@ -28,7 +28,7 @@ function App() {
       {/* Protected routes (redirect to login if not logged in) */}
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/projects" element={<Projects />} />
+        <Route path="/projects/:id" element={<Projects />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/community" element={<Community />} />
       </Route>
