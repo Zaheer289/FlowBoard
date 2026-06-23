@@ -6,20 +6,20 @@ Install vite, react-router, axios, tailwind
 
 Backend:
 
-Initialise npm project
+Initialise npm project V
 
-install express, mongoose, dotenv, nodemon
+install express, mongoose, dotenv, nodemon V
 
-package.json -> type: module -> scripts: dev: nodemon <path>
+package.json -> type: module -> scripts: dev: nodemon <path> V
 
-Sign in to mongoDB -> Create project -> set up use rid and password -> copy connection string -> paste connection string in .env file
+Sign in to mongoDB -> Create project -> set up use rid and password -> copy connection string -> paste connection string in .env file V
 
-Create server.js -> Create express app here -> import dotenv -> dotenv.config()-> connectDB function
+Create server.js -> Create express app here -> import dotenv -> dotenv.config()-> connectDB function V
 app.use("common path", route)
 app.use(express.json())
 app.use(cors({origin: [localhost:5000], methods: [API METHODS]credentials: true
 
-hide .env file by adding it to .gitignore
+hide .env file by adding it to .gitignore V
 
 create a routes folder -> categoryRoutes.js -> router = express.Router()
 

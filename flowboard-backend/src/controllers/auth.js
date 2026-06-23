@@ -94,3 +94,8 @@ export const logInUser = async (req,res) => {
         })
     }
 }
+
+export const verifyAuth = (req, res) => {
+    // If the middleware verifyAccessToken passes, req.user will be populated
+    return res.status(200).json({ message: "Authenticated", user: req.user });
+};

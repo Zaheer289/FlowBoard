@@ -2,8 +2,10 @@ import "./styles/login.css";
 import { useState } from "react";
 import api from "../api/axios";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
 function Register() {
+    const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
   const shapes = [
     {
@@ -76,12 +78,15 @@ function Register() {
     event.preventDefault();
     if(!formData.email||!formData.username||!formData.password||!formData.confirmPassword){
         displayErrorMessage("Please enter data in all fields!");
+        return;
     }
     else if(formData.password!==formData.confirmPassword){
         displayErrorMessage("Passwords do not match!");
+        return;
     }
     else if(!formData.privacyChecked){
         displayErrorMessage("You must agree to the Privacy Policy and Terms & Conditions before proceeding.");
+        return;
     }
     try{
         const response = await api.post('/auth/register',{
@@ -90,13 +95,15 @@ function Register() {
             password: formData.password
         });
         console.log(response.status,response.data.message);
-        if(response.status!==201){
+        if(response.status===201){
+            navigate('/dashboard');
+        } else {
             displayErrorMessage(response.data.message);
         }
     }
     catch(err){
         console.log(err);
-        displayErrorMessage(err.response.data.message);
+        displayErrorMessage(err.response?.data?.message || err.message);
     }
   };
   return (

@@ -1,8 +1,11 @@
 import './styles/login.css'
 import { useState } from 'react';
-import api from '../api/axios.js';
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import api from '../api/axios.js';
+import { useNavigate } from 'react-router-dom';
+
 function Login() {
+  const navigate = useNavigate();
   const shapes = [
     { size: 20, color: 'bg-red-400', top: 'top-[10%]', left: 'left-[15%]', delay: '0s' },
     { size: 15, color: 'bg-yellow-400', top: 'top-[70%]', left: 'left-[10%]', delay: '2s' },
@@ -43,7 +46,9 @@ function Login() {
         try{
             const response = await api.post('/auth/login',formData);
             console.log(response.status,response.data.message);
-            if(response.status!==200){
+            if(response.status===200){
+                navigate('/dashboard');
+            } else {
                 displayErrorMessage(response.data.message);
             }
         }
