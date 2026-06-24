@@ -64,6 +64,58 @@ function PropertySidebar({ elements, selectedElementIds, setElements, setSelecte
             />
           </div>
 
+          <div>
+            <label className="text-sm text-gray-400">Rotation (°)</label>
+            <input 
+              type="number" 
+              value={(() => {
+                if (selectedShape.type === 'line' || selectedShape.type === 'arrow') {
+                  const p = selectedShape.points;
+                  if (!p || p.length < 4) return 0;
+                  return Math.round(Math.atan2(p[3] - p[1], p[2] - p[0]) * (180 / Math.PI));
+                }
+                return Math.round(selectedShape.rotation || 0);
+              })()}
+              onChange={(e) => {
+                const val = parseFloat(e.target.value) || 0;
+                if (selectedShape.type === 'line' || selectedShape.type === 'arrow') {
+                  const p = selectedShape.points;
+                  if (!p || p.length < 4) return;
+                  const cx = (p[0] + p[2]) / 2;
+                  const cy = (p[1] + p[3]) / 2;
+                  const len = Math.hypot(p[2] - p[0], p[3] - p[1]);
+                  const rad = val * (Math.PI / 180);
+                  const dx = (len / 2) * Math.cos(rad);
+                  const dy = (len / 2) * Math.sin(rad);
+                  const newPoints = [cx - dx, cy - dy, cx + dx, cy + dy];
+                  handleChange('points', newPoints);
+                } else {
+                  const newAngle = val;
+                  const oldAngle = selectedShape.rotation || 0;
+
+                  const radOld = oldAngle * (Math.PI / 180);
+                  const radNew = newAngle * (Math.PI / 180);
+
+                  const lcx = selectedShape.width / 2;
+                  const lcy = selectedShape.height / 2;
+
+                  const cx = selectedShape.x + lcx * Math.cos(radOld) - lcy * Math.sin(radOld);
+                  const cy = selectedShape.y + lcx * Math.sin(radOld) + lcy * Math.cos(radOld);
+
+                  const newX = cx - (lcx * Math.cos(radNew) - lcy * Math.sin(radNew));
+                  const newY = cy - (lcx * Math.sin(radNew) + lcy * Math.cos(radNew));
+
+                  setElements(elements.map(el => 
+                    selectedElementIds.includes(el.id) 
+                      ? { ...el, rotation: newAngle, x: newX, y: newY } 
+                      : el
+                  ));
+                }
+              }}
+              className="w-full mt-1 p-2 bg-zinc-800 border border-cyan-700 text-white rounded-md focus:border-cyan-400 outline-none transition-all" 
+            />
+          </div>
+
           {selectedShape.type === 'text' && (
             <div>
               <label className="text-sm text-gray-400">Font Size</label>

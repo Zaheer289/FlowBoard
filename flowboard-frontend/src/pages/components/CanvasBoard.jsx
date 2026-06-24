@@ -260,6 +260,7 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
                   }
                   node.scaleX(1);
                   node.scaleY(1);
+                  node.rotation(0);
                   node.x(0);
                   node.y(0);
                   setElements(elements.map(el =>
@@ -278,7 +279,8 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
                       x: node.x(),
                       y: node.y(),
                       width: Math.max(5, node.width() * scaleX),
-                      height: Math.max(5, node.height() * scaleY)
+                      height: Math.max(5, node.height() * scaleY),
+                      rotation: node.rotation()
                     } : el
                   ));
                 }
@@ -286,16 +288,16 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
             };
 
             if (shape.type === "rectangle") {
-              return <Rect key={shape.id} {...shape} {...commonProps} />;
+              return <Rect key={shape.id} {...shape} rotation={shape.rotation || 0} {...commonProps} />;
             }
             if (shape.type === "circle") {
-              return <Ellipse key={shape.id} x={shape.x} y={shape.y} offsetX={-(Math.abs(shape.width) / 2)} offsetY={-(Math.abs(shape.height) / 2)} radiusX={Math.abs(shape.width / 2)} radiusY={Math.abs(shape.height / 2)} {...commonProps} />;
+              return <Ellipse key={shape.id} x={shape.x} y={shape.y} offsetX={-(Math.abs(shape.width) / 2)} offsetY={-(Math.abs(shape.height) / 2)} radiusX={Math.abs(shape.width / 2)} radiusY={Math.abs(shape.height / 2)} rotation={shape.rotation || 0} {...commonProps} />;
             }
             if (shape.type === "triangle") {
-              return <Line key={shape.id} x={shape.x} y={shape.y} points={[shape.width / 2, 0, shape.width, shape.height, 0, shape.height]} closed={true} {...commonProps} />;
+              return <Line key={shape.id} x={shape.x} y={shape.y} points={[shape.width / 2, 0, shape.width, shape.height, 0, shape.height]} closed={true} rotation={shape.rotation || 0} {...commonProps} />;
             }
             if (shape.type === "hexagon") {
-              return <Line key={shape.id} x={shape.x} y={shape.y} points={[shape.width * 0.25, 0, shape.width * 0.75, 0, shape.width, shape.height / 2, shape.width * 0.75, shape.height, shape.width * 0.25, shape.height, 0, shape.height / 2]} closed={true} {...commonProps} />;
+              return <Line key={shape.id} x={shape.x} y={shape.y} points={[shape.width * 0.25, 0, shape.width * 0.75, 0, shape.width, shape.height / 2, shape.width * 0.75, shape.height, shape.width * 0.25, shape.height, 0, shape.height / 2]} closed={true} rotation={shape.rotation || 0} {...commonProps} />;
             }
             if (shape.type === "arrow") {
               return <Arrow key={shape.id} points={shape.points} pointerLength={10} pointerWidth={10} {...commonProps} x={0} y={0} />;
@@ -304,10 +306,10 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
               return <Line key={shape.id} points={shape.points} {...commonProps} x={0} y={0} />;
             }
             if (shape.type === "text") {
-              return <Text key={shape.id} text={shape.text} fontSize={shape.fontSize} x={shape.x} y={shape.y} width={Math.abs(shape.width)} height={Math.abs(shape.height)} visible={editingTextId !== shape.id} onDblClick={() => setEditingTextId(shape.id)} onDblTap={() => setEditingTextId(shape.id)} {...commonProps} />;
+              return <Text key={shape.id} text={shape.text} fontSize={shape.fontSize} x={shape.x} y={shape.y} width={Math.abs(shape.width)} height={Math.abs(shape.height)} rotation={shape.rotation || 0} visible={editingTextId !== shape.id} onDblClick={() => setEditingTextId(shape.id)} onDblTap={() => setEditingTextId(shape.id)} {...commonProps} />;
             }
 
-            return <Rect key={shape.id} {...shape} {...commonProps} />;
+            return <Rect key={shape.id} {...shape} rotation={shape.rotation || 0} {...commonProps} />;
           })}
           <Transformer ref={trRef} boundBoxFunc={(oldBox, newBox) => {
             // Prevent resizing too small
