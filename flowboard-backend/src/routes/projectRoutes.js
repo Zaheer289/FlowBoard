@@ -10,7 +10,7 @@ router.put("/projects", verifyAccessToken, saveProject);
 
 router.delete("/projects", verifyAccessToken, deleteProject);
 
-router.get("/users/:id/projects", verifyAccessToken, getProjects);
+router.get("/projects", verifyAccessToken, getProjects);
 
 router.get("/projects/:id", verifyAccessToken, getProjectById);
 

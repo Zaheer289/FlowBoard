@@ -61,9 +61,9 @@ const projectSchema = new mongoose.Schema({
     comments: [commentSchema],
     thumbnail: {
         type: String,
-        default: "/public/default.png"
+        default: "/default.png"
     }
-}, {timestamps:true})
+}, { timestamps: true })
 
 const Project = mongoose.model("Project", projectSchema);
 export default Project;

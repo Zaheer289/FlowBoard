@@ -11,27 +11,26 @@ import {
 } from "@/components/ui/carousel";
 
 function ProjectList({ projectList }) {
-  const [project, setProject] = useState(projectList);
-
-  const setArchive = (idx) => {
-    setProject(prevList =>
-      prevList.filter(p => p.id !== idx)
-    );
-  }
-
-  // Gracefully determine if looping is needed based on item count (e.g. if more than 4, it will loop on large screens)
-  const shouldLoop = project.length > 4;
+  const shouldLoop = projectList && projectList.length > 4;
 
   return (
-    <Carousel 
+    <Carousel
       className="w-full px-12"
       opts={{ loop: true, align: "start" }}
       plugins={[Autoplay({ delay: 3000, stopOnInteraction: true })]}
     >
       <CarouselContent className="flex">
-        {project.map((item, idx) => (
-          <CarouselItem key={item.id || idx} className="sm:basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
-            <ProjectCard item={item} setArchive={() => setArchive(item.id)} />
+        {projectList && projectList.map((project) => (
+          <CarouselItem key={project._id} className="sm:basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+            <ProjectCard 
+                id={project._id}
+                name={project.name || "Untitled Project"}
+                lastEdited={project.updatedAt ? new Date(project.updatedAt).toLocaleDateString() : "Unknown date"}
+                thumbnail={project.thumbnail || "public/dashboard-card-img.png"}
+                starred={false}
+                archived={false}
+                setArchive={() => {}}
+            />
           </CarouselItem>
         ))}
       </CarouselContent>
