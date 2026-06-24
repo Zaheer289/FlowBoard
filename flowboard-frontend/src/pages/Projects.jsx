@@ -32,6 +32,33 @@ function Projects(){
         fetchProject();
     }, [id]);
 
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            const activeTag = document.activeElement?.tagName.toLowerCase();
+            if (activeTag === 'input' || activeTag === 'textarea') return;
+            if (selectedElementIds.length === 0) return;
+
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                e.preventDefault();
+                setElements(prevElements => prevElements.map(el => {
+                    if (!selectedElementIds.includes(el.id)) return el;
+                    let newX = el.x;
+                    let newY = el.y;
+                    if (e.key === 'ArrowUp') newY -= 1;
+                    if (e.key === 'ArrowDown') newY += 1;
+                    if (e.key === 'ArrowLeft') newX -= 1;
+                    if (e.key === 'ArrowRight') newX += 1;
+                    return { ...el, x: newX, y: newY };
+                }));
+            } else if (e.key === 'Delete' || e.key === 'Backspace') {
+                setElements(prev => prev.filter(el => !selectedElementIds.includes(el.id)));
+                setSelectedElementIds([]);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [selectedElementIds]);
     return (
         <div className="h-screen flex flex-col">
             <div className="flex justify-between items-center py-3 px-6 bg-[#222] border-b border-cyan-700">
