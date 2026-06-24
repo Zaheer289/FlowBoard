@@ -1,4 +1,4 @@
-import { Stage, Layer, Rect, Circle, Text, Transformer } from "react-konva";
+import { Stage, Layer, Rect, Circle, Text, Transformer, Ellipse, Line, Arrow } from "react-konva";
 import { useRef, useEffect } from "react";
 
 function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selectedElementIds, setSelectedElementIds, selectionRect, setSelectionRect }) {
@@ -39,18 +39,28 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
 
     if (clickedOnEmpty && activeTool !== 'select') {
       const pos = e.target.getStage().getPointerPosition();
-      const newElement = {
+      let newElement = {
         id: Date.now().toString(),
         type: activeTool,
         x: pos.x,
         y: pos.y,
-        width: 0,
-        height: 0,
         fill: '#e2e8f0',
         stroke: '#000000',
         strokeWidth: 0,
         opacity: 1
       };
+
+      if (activeTool === 'arrow' || activeTool === 'line') {
+        newElement.points = [pos.x, pos.y, pos.x, pos.y];
+      } else if (activeTool === 'text') {
+        newElement.width = 0;
+        newElement.height = 0;
+        newElement.text = "Double click to edit";
+        newElement.fontSize = 20;
+      } else {
+        newElement.width = 0;
+        newElement.height = 0;
+      }
 
       setElements([...elements, newElement]);
       isDrawing.current = true;
@@ -72,16 +82,44 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
 
     if (!isDrawing.current || activeTool === 'select') return;
 
+    const isShiftPressed = e.evt.shiftKey;
+
     // Update the width and height of the last element being drawn
     setElements((prevElements) => {
       const lastIndex = prevElements.length - 1;
       const lastElement = { ...prevElements[lastIndex] };
-      lastElement.width = pos.x - lastElement.x;
-      lastElement.height = pos.y - lastElement.y;
+      
+      if (lastElement.type === 'arrow' || lastElement.type === 'line') {
+        let currentX = pos.x;
+        let currentY = pos.y;
+
+        if (isShiftPressed) {
+          const dx = pos.x - lastElement.points[0];
+          const dy = pos.y - lastElement.points[1];
+          if (Math.abs(dx) > Math.abs(dy)) {
+            currentY = lastElement.points[1];
+          } else {
+            currentX = lastElement.points[0];
+          }
+        }
+
+        lastElement.points = [lastElement.points[0], lastElement.points[1], currentX, currentY];
+      } else {
+        let width = pos.x - lastElement.x;
+        let height = pos.y - lastElement.y;
+
+        if (isShiftPressed) {
+          const maxDim = Math.max(Math.abs(width), Math.abs(height));
+          width = (Math.sign(width) || 1) * maxDim;
+          height = (Math.sign(height) || 1) * maxDim;
+        }
+
+        lastElement.width = width;
+        lastElement.height = height;
+      }
 
       const newElements = [...prevElements];
       newElements[lastIndex] = lastElement;
-      console.log(newElements);
       return newElements;
     });
   };
@@ -152,6 +190,7 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
             fill: shape.fill || 'transparent',
             stroke: shape.stroke || '#000000',
             strokeWidth: shape.strokeWidth || 0,
+            hitStrokeWidth: 15,
             opacity: shape.opacity ?? 1,
             draggable: activeTool === 'select',
             onClick: (e) => {
@@ -201,11 +240,22 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
             return <Rect key={shape.id} {...shape} {...commonProps} />;
           }
           if (shape.type === "circle") {
-            const radius = Math.max(Math.abs(shape.width), Math.abs(shape.height)) / 2;
-            return <Circle key={shape.id} x={shape.x + shape.width / 2} y={shape.y + shape.height / 2} radius={radius} fill={shape.fill} stroke={shape.stroke} strokeWidth={shape.strokeWidth} {...commonProps} />;
+            return <Ellipse key={shape.id} x={shape.x + shape.width / 2} y={shape.y + shape.height / 2} radiusX={Math.abs(shape.width / 2)} radiusY={Math.abs(shape.height / 2)} {...commonProps} />;
+          }
+          if (shape.type === "triangle") {
+            return <Line key={shape.id} x={shape.x} y={shape.y} points={[shape.width / 2, 0, shape.width, shape.height, 0, shape.height]} closed={true} {...commonProps} />;
+          }
+          if (shape.type === "hexagon") {
+            return <Line key={shape.id} x={shape.x} y={shape.y} points={[shape.width * 0.25, 0, shape.width * 0.75, 0, shape.width, shape.height / 2, shape.width * 0.75, shape.height, shape.width * 0.25, shape.height, 0, shape.height / 2]} closed={true} {...commonProps} />;
+          }
+          if (shape.type === "arrow") {
+            return <Arrow key={shape.id} points={shape.points} pointerLength={10} pointerWidth={10} {...commonProps} />;
+          }
+          if (shape.type === "line") {
+            return <Line key={shape.id} points={shape.points} {...commonProps} />;
           }
           if (shape.type === "text") {
-            return <Text key={shape.id} {...shape} {...commonProps} />;
+            return <Text key={shape.id} text={shape.text} fontSize={shape.fontSize} x={shape.x} y={shape.y} width={Math.abs(shape.width)} height={Math.abs(shape.height)} {...commonProps} />;
           }
 
           return <Rect key={shape.id} {...shape} {...commonProps} />;

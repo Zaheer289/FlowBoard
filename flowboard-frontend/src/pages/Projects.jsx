@@ -60,7 +60,7 @@ function Projects(){
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [selectedElementIds]);
     return (
-        <div className="h-screen flex flex-col">
+        <div className="h-screen flex flex-col overflow-hidden">
             <div className="flex justify-between items-center py-3 px-6 bg-[#222] border-b border-cyan-700">
                 <div className="flex justify-start gap-6 items-center">
                     <img src={homeIcon} alt="flowboard home icon" className="w-12 h-12 p-2 bg-sky-950 rounded-md"/>
@@ -77,11 +77,11 @@ function Projects(){
                     </button>
                 </div>
             </div>
-        <div className="flex flex-1 w-full bg-[#1a1a1a] text-white relative">
+        <div className="flex flex-1 w-full bg-[#1a1a1a] text-white relative items-stretch overflow-hidden">
         <div
             className={`transition-all duration-300 bg-[#222] border-r border-cyan-700 ${
             showLeft ? "w-1/6" : "w-10"
-            } relative`}
+            } relative h-full`}
         >
             {showLeft && (
             <div className="h-full overflow-y-auto">
@@ -96,7 +96,7 @@ function Projects(){
             </button>
         </div>
 
-        <div className="flex-1 flex justify-center items-center bg-[#111]">
+        <div className="flex-1 relative h-full flex justify-center items-center bg-[#111]">
             <CanvasBoard 
                 elements={elements} 
                 setElements={setElements} 
@@ -112,7 +112,7 @@ function Projects(){
         <div
             className={`transition-all duration-300 bg-[#222] border-l border-cyan-700 ${
             showRight ? "w-1/5" : "w-10"
-            } relative`}
+            } relative h-full`}
         >
             {showRight && (
             <div className="h-full overflow-y-auto">
