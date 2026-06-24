@@ -86,6 +86,20 @@ function PropertySidebar({ elements, selectedElementId, setElements }) {
               className="w-full mt-1 p-2 bg-zinc-800 border border-cyan-700 text-white rounded-md focus:border-cyan-400 outline-none transition-all" 
             />
           </div>
+          <div>
+            <label className="text-sm text-gray-400 flex justify-between">
+              Opacity <span>{selectedShape.opacity ?? 1}</span>
+            </label>
+            <input 
+              type="range" 
+              min="0"
+              max="1"
+              step="0.1"
+              value={selectedShape.opacity ?? 1} 
+              onChange={(e) => handleChange('opacity', e.target.value, true)}
+              className="w-full mt-2 accent-cyan-500 cursor-pointer" 
+            />
+          </div>
         </div>
       ) : (
         <p className="text-sm text-gray-400">Select a shape to edit its properties.</p>

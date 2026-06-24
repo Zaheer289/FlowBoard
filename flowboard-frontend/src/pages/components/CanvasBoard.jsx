@@ -39,7 +39,8 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
         height: 0,
         fill: '#e2e8f0',
         stroke: '#000000',
-        strokeWidth: 0
+        strokeWidth: 0,
+        opacity: 1
       };
 
       setElements([...elements, newElement]);
@@ -93,6 +94,7 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
             fill: shape.fill || 'transparent',
             stroke: shape.stroke || '#000000',
             strokeWidth: shape.strokeWidth || 0,
+            opacity: shape.opacity ?? 1,
             draggable: activeTool === 'select',
             onClick: (e) => {
               if (activeTool !== 'select') return;
