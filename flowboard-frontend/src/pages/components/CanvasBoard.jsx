@@ -230,27 +230,58 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
                 setSelectedElementIds([shape.id]);
               },
               onDragEnd: (e) => {
-                setElements(elements.map(el =>
-                  el.id === shape.id ? { ...el, x: e.target.x(), y: e.target.y() } : el
-                ));
+                const node = e.target;
+                if (shape.type === 'line' || shape.type === 'arrow') {
+                  const transform = node.getTransform();
+                  const newPoints = [];
+                  for (let i = 0; i < shape.points.length; i += 2) {
+                    const pt = transform.point({ x: shape.points[i], y: shape.points[i+1] });
+                    newPoints.push(pt.x, pt.y);
+                  }
+                  node.x(0);
+                  node.y(0);
+                  setElements(elements.map(el =>
+                    el.id === shape.id ? { ...el, points: newPoints, x: 0, y: 0 } : el
+                  ));
+                } else {
+                  setElements(elements.map(el =>
+                    el.id === shape.id ? { ...el, x: node.x(), y: node.y() } : el
+                  ));
+                }
               },
               onTransformEnd: (e) => {
                 const node = e.target;
-                const scaleX = node.scaleX();
-                const scaleY = node.scaleY();
-                // Reset scale to 1 so the element's actual dimensions are updated
-                node.scaleX(1);
-                node.scaleY(1);
+                if (shape.type === 'line' || shape.type === 'arrow') {
+                  const transform = node.getTransform();
+                  const newPoints = [];
+                  for (let i = 0; i < shape.points.length; i += 2) {
+                    const pt = transform.point({ x: shape.points[i], y: shape.points[i+1] });
+                    newPoints.push(pt.x, pt.y);
+                  }
+                  node.scaleX(1);
+                  node.scaleY(1);
+                  node.x(0);
+                  node.y(0);
+                  setElements(elements.map(el =>
+                    el.id === shape.id ? { ...el, points: newPoints, x: 0, y: 0 } : el
+                  ));
+                } else {
+                  const scaleX = node.scaleX();
+                  const scaleY = node.scaleY();
+                  // Reset scale to 1 so the element's actual dimensions are updated
+                  node.scaleX(1);
+                  node.scaleY(1);
 
-                setElements(elements.map(el =>
-                  el.id === shape.id ? {
-                    ...el,
-                    x: node.x(),
-                    y: node.y(),
-                    width: Math.max(5, node.width() * scaleX),
-                    height: Math.max(5, node.height() * scaleY)
-                  } : el
-                ));
+                  setElements(elements.map(el =>
+                    el.id === shape.id ? {
+                      ...el,
+                      x: node.x(),
+                      y: node.y(),
+                      width: Math.max(5, node.width() * scaleX),
+                      height: Math.max(5, node.height() * scaleY)
+                    } : el
+                  ));
+                }
               }
             };
 
@@ -267,10 +298,10 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
               return <Line key={shape.id} x={shape.x} y={shape.y} points={[shape.width * 0.25, 0, shape.width * 0.75, 0, shape.width, shape.height / 2, shape.width * 0.75, shape.height, shape.width * 0.25, shape.height, 0, shape.height / 2]} closed={true} {...commonProps} />;
             }
             if (shape.type === "arrow") {
-              return <Arrow key={shape.id} points={shape.points} pointerLength={10} pointerWidth={10} {...commonProps} />;
+              return <Arrow key={shape.id} points={shape.points} pointerLength={10} pointerWidth={10} {...commonProps} x={0} y={0} />;
             }
             if (shape.type === "line") {
-              return <Line key={shape.id} points={shape.points} {...commonProps} />;
+              return <Line key={shape.id} points={shape.points} {...commonProps} x={0} y={0} />;
             }
             if (shape.type === "text") {
               return <Text key={shape.id} text={shape.text} fontSize={shape.fontSize} x={shape.x} y={shape.y} width={Math.abs(shape.width)} height={Math.abs(shape.height)} visible={editingTextId !== shape.id} onDblClick={() => setEditingTextId(shape.id)} onDblTap={() => setEditingTextId(shape.id)} {...commonProps} />;
