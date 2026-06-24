@@ -37,7 +37,9 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
         y: pos.y,
         width: 0,
         height: 0,
-        fill: "cyan"
+        fill: '#e2e8f0',
+        stroke: '#000000',
+        strokeWidth: 0
       };
 
       setElements([...elements, newElement]);
@@ -86,12 +88,11 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
     >
       <Layer>
         {elements.map((shape) => {
-          const isSelected = shape.id === selectedElementId;
-          const strokeProp = isSelected ? { stroke: 'white', strokeWidth: 2 } : {};
-
           const commonProps = {
             id: shape.id,
             fill: shape.fill || 'transparent',
+            stroke: shape.stroke || '#000000',
+            strokeWidth: shape.strokeWidth || 0,
             draggable: activeTool === 'select',
             onClick: (e) => {
               if (activeTool !== 'select') return;
@@ -129,17 +130,17 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
           };
 
           if (shape.type === "rectangle") {
-            return <Rect key={shape.id} {...shape} {...strokeProp} {...commonProps} />;
+            return <Rect key={shape.id} {...shape} {...commonProps} />;
           }
           if (shape.type === "circle") {
             const radius = Math.max(Math.abs(shape.width), Math.abs(shape.height)) / 2;
-            return <Circle key={shape.id} x={shape.x + shape.width / 2} y={shape.y + shape.height / 2} radius={radius} fill={shape.fill} {...strokeProp} {...commonProps} />;
+            return <Circle key={shape.id} x={shape.x + shape.width / 2} y={shape.y + shape.height / 2} radius={radius} fill={shape.fill} stroke={shape.stroke} strokeWidth={shape.strokeWidth} {...commonProps} />;
           }
           if (shape.type === "text") {
-            return <Text key={shape.id} {...shape} {...strokeProp} {...commonProps} />;
+            return <Text key={shape.id} {...shape} {...commonProps} />;
           }
 
-          return <Rect key={shape.id} {...shape} {...strokeProp} {...commonProps} />;
+          return <Rect key={shape.id} {...shape} {...commonProps} />;
         })}
         <Transformer ref={trRef} boundBoxFunc={(oldBox, newBox) => {
           // Prevent resizing too small
