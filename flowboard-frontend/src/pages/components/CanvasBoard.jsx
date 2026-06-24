@@ -1,17 +1,31 @@
 import { Stage, Layer, Rect, Circle, Text, Transformer, Ellipse, Line, Arrow } from "react-konva";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 
 function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selectedElementIds, setSelectedElementIds, selectionRect, setSelectionRect }) {
   const isDrawing = useRef(false);
   const trRef = useRef();
   const shapeRefs = useRef({});
+  const [editingTextId, setEditingTextId] = useState(null);
+  
+  const containerRef = useRef(null);
+  const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      const { width, height } = entries[0].contentRect;
+      setStageSize({ width, height });
+    });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (selectedElementIds.length > 0 && trRef.current) {
       const selectedNodes = selectedElementIds
         .map(id => shapeRefs.current[id])
         .filter(node => node !== undefined && node !== null);
-      
+
       trRef.current.nodes(selectedNodes);
       trRef.current.getLayer().batchDraw();
     } else if (trRef.current) {
@@ -52,6 +66,9 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
 
       if (activeTool === 'arrow' || activeTool === 'line') {
         newElement.points = [pos.x, pos.y, pos.x, pos.y];
+        newElement.strokeWidth = 4;
+        newElement.stroke = '#e2e8f0';
+        newElement.fill = '#e2e8f0';
       } else if (activeTool === 'text') {
         newElement.width = 0;
         newElement.height = 0;
@@ -88,7 +105,7 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
     setElements((prevElements) => {
       const lastIndex = prevElements.length - 1;
       const lastElement = { ...prevElements[lastIndex] };
-      
+
       if (lastElement.type === 'arrow' || lastElement.type === 'line') {
         let currentX = pos.x;
         let currentY = pos.y;
@@ -144,7 +161,7 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
           width: shape.width,
           height: shape.height
         };
-        
+
         const sx = Math.min(shapeBox.x, shapeBox.x + shapeBox.width);
         const sy = Math.min(shapeBox.y, shapeBox.y + shapeBox.height);
         const sw = Math.abs(shapeBox.width);
@@ -172,112 +189,147 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
   };
 
   return (
-    <Stage
-      width={window.innerWidth * 0.6}
-      height={window.innerHeight * 0.8}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onTouchStart={handleMouseDown}
-      onTouchMove={handleMouseMove}
-      onTouchEnd={handleMouseUp}
-    >
-      <Layer>
-        {elements.map((shape) => {
-          const commonProps = {
-            id: shape.id,
-            ref: (node) => { shapeRefs.current[shape.id] = node; },
-            fill: shape.fill || 'transparent',
-            stroke: shape.stroke || '#000000',
-            strokeWidth: shape.strokeWidth || 0,
-            hitStrokeWidth: 15,
-            opacity: shape.opacity ?? 1,
-            draggable: activeTool === 'select',
-            onClick: (e) => {
-              if (activeTool !== 'select') return;
-              e.cancelBubble = true;
-              if (e.evt.shiftKey) {
-                if (selectedElementIds.includes(shape.id)) {
-                  setSelectedElementIds(selectedElementIds.filter(id => id !== shape.id));
+    <div ref={containerRef} className="w-full h-full overflow-hidden fb-canvas-container" style={{ position: 'relative' }}>
+      <Stage
+        width={stageSize.width}
+        height={stageSize.height}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onTouchStart={handleMouseDown}
+        onTouchMove={handleMouseMove}
+        onTouchEnd={handleMouseUp}
+      >
+        <Layer>
+          {elements.map((shape) => {
+            const commonProps = {
+              id: shape.id,
+              ref: (node) => { shapeRefs.current[shape.id] = node; },
+              fill: shape.fill || 'transparent',
+              stroke: shape.stroke || '#000000',
+              strokeWidth: shape.strokeWidth || 0,
+              hitStrokeWidth: 15,
+              opacity: shape.opacity ?? 1,
+              draggable: activeTool === 'select',
+              onClick: (e) => {
+                if (activeTool !== 'select') return;
+                e.cancelBubble = true;
+                if (e.evt.shiftKey) {
+                  if (selectedElementIds.includes(shape.id)) {
+                    setSelectedElementIds(selectedElementIds.filter(id => id !== shape.id));
+                  } else {
+                    setSelectedElementIds([...selectedElementIds, shape.id]);
+                  }
                 } else {
-                  setSelectedElementIds([...selectedElementIds, shape.id]);
+                  setSelectedElementIds([shape.id]);
                 }
-              } else {
+              },
+              onTap: (e) => {
+                if (activeTool !== 'select') return;
+                e.cancelBubble = true;
                 setSelectedElementIds([shape.id]);
+              },
+              onDragEnd: (e) => {
+                setElements(elements.map(el =>
+                  el.id === shape.id ? { ...el, x: e.target.x(), y: e.target.y() } : el
+                ));
+              },
+              onTransformEnd: (e) => {
+                const node = e.target;
+                const scaleX = node.scaleX();
+                const scaleY = node.scaleY();
+                // Reset scale to 1 so the element's actual dimensions are updated
+                node.scaleX(1);
+                node.scaleY(1);
+
+                setElements(elements.map(el =>
+                  el.id === shape.id ? {
+                    ...el,
+                    x: node.x(),
+                    y: node.y(),
+                    width: Math.max(5, node.width() * scaleX),
+                    height: Math.max(5, node.height() * scaleY)
+                  } : el
+                ));
               }
-            },
-            onTap: (e) => {
-              if (activeTool !== 'select') return;
-              e.cancelBubble = true;
-              setSelectedElementIds([shape.id]);
-            },
-            onDragEnd: (e) => {
-              setElements(elements.map(el =>
-                el.id === shape.id ? { ...el, x: e.target.x(), y: e.target.y() } : el
-              ));
-            },
-            onTransformEnd: (e) => {
-              const node = e.target;
-              const scaleX = node.scaleX();
-              const scaleY = node.scaleY();
-              // Reset scale to 1 so the element's actual dimensions are updated
-              node.scaleX(1);
-              node.scaleY(1);
+            };
 
-              setElements(elements.map(el =>
-                el.id === shape.id ? {
-                  ...el,
-                  x: node.x(),
-                  y: node.y(),
-                  width: Math.max(5, node.width() * scaleX),
-                  height: Math.max(5, node.height() * scaleY)
-                } : el
-              ));
+            if (shape.type === "rectangle") {
+              return <Rect key={shape.id} {...shape} {...commonProps} />;
             }
-          };
+            if (shape.type === "circle") {
+              return <Ellipse key={shape.id} x={shape.x} y={shape.y} offsetX={-(Math.abs(shape.width) / 2)} offsetY={-(Math.abs(shape.height) / 2)} radiusX={Math.abs(shape.width / 2)} radiusY={Math.abs(shape.height / 2)} {...commonProps} />;
+            }
+            if (shape.type === "triangle") {
+              return <Line key={shape.id} x={shape.x} y={shape.y} points={[shape.width / 2, 0, shape.width, shape.height, 0, shape.height]} closed={true} {...commonProps} />;
+            }
+            if (shape.type === "hexagon") {
+              return <Line key={shape.id} x={shape.x} y={shape.y} points={[shape.width * 0.25, 0, shape.width * 0.75, 0, shape.width, shape.height / 2, shape.width * 0.75, shape.height, shape.width * 0.25, shape.height, 0, shape.height / 2]} closed={true} {...commonProps} />;
+            }
+            if (shape.type === "arrow") {
+              return <Arrow key={shape.id} points={shape.points} pointerLength={10} pointerWidth={10} {...commonProps} />;
+            }
+            if (shape.type === "line") {
+              return <Line key={shape.id} points={shape.points} {...commonProps} />;
+            }
+            if (shape.type === "text") {
+              return <Text key={shape.id} text={shape.text} fontSize={shape.fontSize} x={shape.x} y={shape.y} width={Math.abs(shape.width)} height={Math.abs(shape.height)} visible={editingTextId !== shape.id} onDblClick={() => setEditingTextId(shape.id)} onDblTap={() => setEditingTextId(shape.id)} {...commonProps} />;
+            }
 
-          if (shape.type === "rectangle") {
             return <Rect key={shape.id} {...shape} {...commonProps} />;
-          }
-          if (shape.type === "circle") {
-            return <Ellipse key={shape.id} x={shape.x} y={shape.y} offsetX={-(Math.abs(shape.width) / 2)} offsetY={-(Math.abs(shape.height) / 2)} radiusX={Math.abs(shape.width / 2)} radiusY={Math.abs(shape.height / 2)} {...commonProps} />;
-          }
-          if (shape.type === "triangle") {
-            return <Line key={shape.id} x={shape.x} y={shape.y} points={[shape.width / 2, 0, shape.width, shape.height, 0, shape.height]} closed={true} {...commonProps} />;
-          }
-          if (shape.type === "hexagon") {
-            return <Line key={shape.id} x={shape.x} y={shape.y} points={[shape.width * 0.25, 0, shape.width * 0.75, 0, shape.width, shape.height / 2, shape.width * 0.75, shape.height, shape.width * 0.25, shape.height, 0, shape.height / 2]} closed={true} {...commonProps} />;
-          }
-          if (shape.type === "arrow") {
-            return <Arrow key={shape.id} points={shape.points} pointerLength={10} pointerWidth={10} {...commonProps} />;
-          }
-          if (shape.type === "line") {
-            return <Line key={shape.id} points={shape.points} {...commonProps} />;
-          }
-          if (shape.type === "text") {
-            return <Text key={shape.id} text={shape.text} fontSize={shape.fontSize} x={shape.x} y={shape.y} width={Math.abs(shape.width)} height={Math.abs(shape.height)} {...commonProps} />;
-          }
-
-          return <Rect key={shape.id} {...shape} {...commonProps} />;
-        })}
-        <Transformer ref={trRef} boundBoxFunc={(oldBox, newBox) => {
-          // Prevent resizing too small
-          if (Math.abs(newBox.width) < 5 || Math.abs(newBox.height) < 5) return oldBox;
-          return newBox;
-        }} />
-        {selectionRect && selectionRect.visible && (
-          <Rect
-            x={Math.min(selectionRect.x1, selectionRect.x2)}
-            y={Math.min(selectionRect.y1, selectionRect.y2)}
-            width={Math.abs(selectionRect.x1 - selectionRect.x2)}
-            height={Math.abs(selectionRect.y1 - selectionRect.y2)}
-            fill="rgba(0, 161, 255, 0.3)"
-            stroke="rgba(0, 161, 255, 0.8)"
-            strokeWidth={1}
-          />
-        )}
-      </Layer>
-    </Stage>
+          })}
+          <Transformer ref={trRef} boundBoxFunc={(oldBox, newBox) => {
+            // Prevent resizing too small
+            if (Math.abs(newBox.width) < 5 || Math.abs(newBox.height) < 5) return oldBox;
+            return newBox;
+          }} />
+          {selectionRect && selectionRect.visible && (
+            <Rect
+              x={Math.min(selectionRect.x1, selectionRect.x2)}
+              y={Math.min(selectionRect.y1, selectionRect.y2)}
+              width={Math.abs(selectionRect.x1 - selectionRect.x2)}
+              height={Math.abs(selectionRect.y1 - selectionRect.y2)}
+              fill="rgba(0, 161, 255, 0.3)"
+              stroke="rgba(0, 161, 255, 0.8)"
+              strokeWidth={1}
+            />
+          )}
+        </Layer>
+      </Stage>
+      {elements.map((shape) => {
+        if (shape.type === 'text' && editingTextId === shape.id) {
+          return (
+            <textarea
+              key={`input-${shape.id}`}
+              autoFocus
+              defaultValue={shape.text}
+              onBlur={(e) => {
+                setElements(elements.map(el => el.id === shape.id ? { ...el, text: e.target.value } : el));
+                setEditingTextId(null);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') setEditingTextId(null);
+              }}
+              style={{
+                position: 'absolute',
+                top: `${shape.y}px`,
+                left: `${shape.x}px`,
+                width: `${Math.max(Math.abs(shape.width), 100)}px`,
+                height: `${Math.max(Math.abs(shape.height), 50)}px`,
+                fontSize: `${shape.fontSize || 20}px`,
+                fontFamily: 'sans-serif',
+                border: 'none',
+                outline: 'none',
+                resize: 'none',
+                background: 'transparent',
+                color: shape.fill || '#000000',
+              }}
+            />
+          );
+        }
+        return null;
+      })}
+    </div>
   );
 }
 export default CanvasBoard;

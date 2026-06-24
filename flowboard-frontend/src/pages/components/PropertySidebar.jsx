@@ -63,6 +63,18 @@ function PropertySidebar({ elements, selectedElementIds, setElements, setSelecte
               className="w-full mt-1 p-2 bg-zinc-800 border border-cyan-700 text-white rounded-md focus:border-cyan-400 outline-none transition-all" 
             />
           </div>
+
+          {selectedShape.type === 'text' && (
+            <div>
+              <label className="text-sm text-gray-400">Font Size</label>
+              <input 
+                type="number" 
+                value={selectedShape.fontSize || 20} 
+                onChange={(e) => handleChange('fontSize', e.target.value, true)}
+                className="w-full mt-1 p-2 bg-zinc-800 border border-cyan-700 text-white rounded-md focus:border-cyan-400 outline-none transition-all" 
+              />
+            </div>
+          )}
           
           <hr className="border-cyan-800 my-4" />
 
