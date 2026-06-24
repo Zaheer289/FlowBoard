@@ -15,7 +15,8 @@ function Projects(){
     
     // Whiteboard Global State
     const [elements, setElements] = useState([]);
-    const [selectedElementId, setSelectedElementId] = useState(null);
+    const [selectedElementIds, setSelectedElementIds] = useState([]);
+    const [selectionRect, setSelectionRect] = useState(null);
     const [activeTool, setActiveTool] = useState('select');
 
     useEffect(() => {
@@ -74,8 +75,10 @@ function Projects(){
                 setElements={setElements} 
                 activeTool={activeTool} 
                 setActiveTool={setActiveTool} 
-                selectedElementId={selectedElementId} 
-                setSelectedElementId={setSelectedElementId} 
+                selectedElementIds={selectedElementIds} 
+                setSelectedElementIds={setSelectedElementIds} 
+                selectionRect={selectionRect}
+                setSelectionRect={setSelectionRect}
             />
         </div>
 
@@ -86,7 +89,7 @@ function Projects(){
         >
             {showRight && (
             <div className="h-full overflow-y-auto">
-                <PropertySidebar elements={elements} selectedElementId={selectedElementId} setElements={setElements} />
+                <PropertySidebar elements={elements} selectedElementIds={selectedElementIds} setElements={setElements} setSelectedElementIds={setSelectedElementIds} />
             </div>
             )}
             <button

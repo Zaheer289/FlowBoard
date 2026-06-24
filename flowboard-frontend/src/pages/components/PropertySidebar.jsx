@@ -1,17 +1,31 @@
-function PropertySidebar({ elements, selectedElementId, setElements }) {
-  const selectedShape = elements ? elements.find(el => el.id === selectedElementId) : null;
+function PropertySidebar({ elements, selectedElementIds, setElements, setSelectedElementIds }) {
+  const selectedShape = selectedElementIds.length === 1 && elements ? elements.find(el => el.id === selectedElementIds[0]) : null;
 
   const handleChange = (property, value, isNumeric = false) => {
     const finalValue = isNumeric ? (parseFloat(value) || 0) : value;
     setElements(elements.map(el => 
-      el.id === selectedElementId ? { ...el, [property]: finalValue } : el
+      selectedElementIds.includes(el.id) ? { ...el, [property]: finalValue } : el
     ));
+  };
+
+  const handleDelete = () => {
+    setElements(elements.filter(el => !selectedElementIds.includes(el.id)));
+    setSelectedElementIds([]);
   };
 
   return (
     <div className="p-4">
       <h2 className="text-lg font-semibold mb-4 text-white">Properties</h2>
-      {selectedShape ? (
+      
+      {selectedElementIds.length === 0 && (
+        <p className="text-sm text-gray-400">Select a shape to edit its properties.</p>
+      )}
+
+      {selectedElementIds.length > 1 && (
+        <p className="text-sm text-gray-400 mb-4">Multiple shapes selected.</p>
+      )}
+
+      {selectedShape && (
         <div className="space-y-4">
           <div>
             <label className="text-sm text-gray-400">X Position</label>
@@ -101,8 +115,15 @@ function PropertySidebar({ elements, selectedElementId, setElements }) {
             />
           </div>
         </div>
-      ) : (
-        <p className="text-sm text-gray-400">Select a shape to edit its properties.</p>
+      )}
+
+      {selectedElementIds.length > 0 && (
+        <button 
+          onClick={handleDelete}
+          className="mt-6 w-full py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md transition-colors"
+        >
+          Delete Selected
+        </button>
       )}
     </div>
   );

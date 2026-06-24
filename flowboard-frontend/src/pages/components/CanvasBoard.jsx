@@ -1,29 +1,38 @@
 import { Stage, Layer, Rect, Circle, Text, Transformer } from "react-konva";
 import { useRef, useEffect } from "react";
 
-function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selectedElementId, setSelectedElementId }) {
+function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selectedElementIds, setSelectedElementIds, selectionRect, setSelectionRect }) {
   const isDrawing = useRef(false);
   const trRef = useRef();
+  const shapeRefs = useRef({});
 
   useEffect(() => {
-    if (selectedElementId && trRef.current) {
-      const stage = trRef.current.getStage();
-      const selectedNode = stage.findOne('#' + selectedElementId);
-      if (selectedNode) {
-        trRef.current.nodes([selectedNode]);
-        trRef.current.getLayer().batchDraw();
-      }
+    if (selectedElementIds.length > 0 && trRef.current) {
+      const selectedNodes = selectedElementIds
+        .map(id => shapeRefs.current[id])
+        .filter(node => node !== undefined && node !== null);
+      
+      trRef.current.nodes(selectedNodes);
+      trRef.current.getLayer().batchDraw();
     } else if (trRef.current) {
       trRef.current.nodes([]);
     }
-  }, [selectedElementId, elements]);
+  }, [selectedElementIds, elements]);
 
   const handleMouseDown = (e) => {
     const clickedOnEmpty = e.target === e.target.getStage();
 
     if (activeTool === 'select') {
       if (clickedOnEmpty) {
-        setSelectedElementId(null);
+        setSelectedElementIds([]);
+        const pos = e.target.getStage().getPointerPosition();
+        setSelectionRect({
+          visible: true,
+          x1: pos.x,
+          y1: pos.y,
+          x2: pos.x,
+          y2: pos.y
+        });
       }
       return;
     }
@@ -49,10 +58,19 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
   };
 
   const handleMouseMove = (e) => {
-    if (!isDrawing.current || activeTool === 'select') return;
-
     const stage = e.target.getStage();
     const pos = stage.getPointerPosition();
+
+    if (selectionRect && selectionRect.visible) {
+      setSelectionRect({
+        ...selectionRect,
+        x2: pos.x,
+        y2: pos.y
+      });
+      return;
+    }
+
+    if (!isDrawing.current || activeTool === 'select') return;
 
     // Update the width and height of the last element being drawn
     setElements((prevElements) => {
@@ -69,6 +87,45 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
   };
 
   const handleMouseUp = () => {
+    if (selectionRect && selectionRect.visible) {
+      setSelectionRect({ ...selectionRect, visible: false });
+
+      const selBox = {
+        x: Math.min(selectionRect.x1, selectionRect.x2),
+        y: Math.min(selectionRect.y1, selectionRect.y2),
+        width: Math.abs(selectionRect.x1 - selectionRect.x2),
+        height: Math.abs(selectionRect.y1 - selectionRect.y2),
+      };
+
+      if (selBox.width === 0 && selBox.height === 0) return;
+
+      const selectedIds = elements.filter(shape => {
+        const shapeBox = {
+          x: shape.x,
+          y: shape.y,
+          width: shape.width,
+          height: shape.height
+        };
+        
+        const sx = Math.min(shapeBox.x, shapeBox.x + shapeBox.width);
+        const sy = Math.min(shapeBox.y, shapeBox.y + shapeBox.height);
+        const sw = Math.abs(shapeBox.width);
+        const sh = Math.abs(shapeBox.height);
+
+        return (
+          selBox.x < sx + sw &&
+          selBox.x + selBox.width > sx &&
+          selBox.y < sy + sh &&
+          selBox.y + selBox.height > sy
+        );
+      }).map(shape => shape.id);
+
+      if (selectedIds.length > 0) {
+        setSelectedElementIds(selectedIds);
+      }
+      return;
+    }
+
     if (isDrawing.current) {
       isDrawing.current = false;
       // Revert back to selection mode so the user doesn't accidentally draw another shape immediately
@@ -91,6 +148,7 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
         {elements.map((shape) => {
           const commonProps = {
             id: shape.id,
+            ref: (node) => { shapeRefs.current[shape.id] = node; },
             fill: shape.fill || 'transparent',
             stroke: shape.stroke || '#000000',
             strokeWidth: shape.strokeWidth || 0,
@@ -99,12 +157,20 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
             onClick: (e) => {
               if (activeTool !== 'select') return;
               e.cancelBubble = true;
-              setSelectedElementId(shape.id);
+              if (e.evt.shiftKey) {
+                if (selectedElementIds.includes(shape.id)) {
+                  setSelectedElementIds(selectedElementIds.filter(id => id !== shape.id));
+                } else {
+                  setSelectedElementIds([...selectedElementIds, shape.id]);
+                }
+              } else {
+                setSelectedElementIds([shape.id]);
+              }
             },
             onTap: (e) => {
               if (activeTool !== 'select') return;
               e.cancelBubble = true;
-              setSelectedElementId(shape.id);
+              setSelectedElementIds([shape.id]);
             },
             onDragEnd: (e) => {
               setElements(elements.map(el =>
@@ -149,6 +215,17 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
           if (Math.abs(newBox.width) < 5 || Math.abs(newBox.height) < 5) return oldBox;
           return newBox;
         }} />
+        {selectionRect && selectionRect.visible && (
+          <Rect
+            x={Math.min(selectionRect.x1, selectionRect.x2)}
+            y={Math.min(selectionRect.y1, selectionRect.y2)}
+            width={Math.abs(selectionRect.x1 - selectionRect.x2)}
+            height={Math.abs(selectionRect.y1 - selectionRect.y2)}
+            fill="rgba(0, 161, 255, 0.3)"
+            stroke="rgba(0, 161, 255, 0.8)"
+            strokeWidth={1}
+          />
+        )}
       </Layer>
     </Stage>
   );
