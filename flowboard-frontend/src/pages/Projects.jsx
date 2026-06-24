@@ -12,6 +12,11 @@ function Projects(){
     const [project, setProject] = useState(null);
     const [showLeft, setShowLeft] = useState(true);
     const [showRight, setShowRight] = useState(true);
+    
+    // Whiteboard Global State
+    const [elements, setElements] = useState([]);
+    const [selectedElementId, setSelectedElementId] = useState(null);
+    const [activeTool, setActiveTool] = useState('select');
 
     useEffect(() => {
         if (!id) return;
@@ -52,7 +57,7 @@ function Projects(){
         >
             {showLeft && (
             <div className="h-full overflow-y-auto">
-                <ShapeSidebar />
+                <ShapeSidebar activeTool={activeTool} setActiveTool={setActiveTool} />
             </div>
             )}
             <button
@@ -64,7 +69,14 @@ function Projects(){
         </div>
 
         <div className="flex-1 flex justify-center items-center bg-[#111]">
-            <CanvasBoard />
+            <CanvasBoard 
+                elements={elements} 
+                setElements={setElements} 
+                activeTool={activeTool} 
+                setActiveTool={setActiveTool} 
+                selectedElementId={selectedElementId} 
+                setSelectedElementId={setSelectedElementId} 
+            />
         </div>
 
         <div
@@ -74,7 +86,7 @@ function Projects(){
         >
             {showRight && (
             <div className="h-full overflow-y-auto">
-                <PropertySidebar />
+                <PropertySidebar elements={elements} selectedElementId={selectedElementId} setElements={setElements} />
             </div>
             )}
             <button
