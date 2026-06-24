@@ -240,7 +240,7 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
             return <Rect key={shape.id} {...shape} {...commonProps} />;
           }
           if (shape.type === "circle") {
-            return <Ellipse key={shape.id} x={shape.x + shape.width / 2} y={shape.y + shape.height / 2} radiusX={Math.abs(shape.width / 2)} radiusY={Math.abs(shape.height / 2)} {...commonProps} />;
+            return <Ellipse key={shape.id} x={shape.x} y={shape.y} offsetX={-(Math.abs(shape.width) / 2)} offsetY={-(Math.abs(shape.height) / 2)} radiusX={Math.abs(shape.width / 2)} radiusY={Math.abs(shape.height / 2)} {...commonProps} />;
           }
           if (shape.type === "triangle") {
             return <Line key={shape.id} x={shape.x} y={shape.y} points={[shape.width / 2, 0, shape.width, shape.height, 0, shape.height]} closed={true} {...commonProps} />;
