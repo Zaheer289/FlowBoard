@@ -11,7 +11,7 @@ function ProjectCard({ id, name, thumbnail, lastEdited, starred, setArchive, han
         ? 'scale-100 shadow-2xl shadow-cyan-900/50 border-cyan-400 z-10 bg-zinc-800'
         : 'scale-100 hover:scale-[1.02] border-zinc-500 bg-transparent'
         }`}
-      onClick={() => handleCardClick(id)}
+      onClick={(e) => handleCardClick(e, id)}
     >
       <img
         src={thumbnail ? thumbnail : "/default.png"}

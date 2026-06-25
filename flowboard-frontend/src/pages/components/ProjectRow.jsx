@@ -1,12 +1,27 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ProjectList from "./ProjectList";
 
 function ProjectRow({ title, projects, handleLoadProject, handleDeleteProject, handleOpenSettings }) {
     const [selectedCardId, setSelectedCardId] = useState(null);
 
-    const handleCardClick = (projectId) => {
+    const handleCardClick = (e, projectId) => {
+        e.stopPropagation();
         setSelectedCardId(prev => prev === projectId ? null : projectId);
     };
+
+    useEffect(() => {
+        const handleOutsideClick = () => {
+            setSelectedCardId(null);
+        };
+
+        // Attach the listener
+        document.addEventListener('click', handleOutsideClick);
+
+        // Cleanup the listener on unmount
+        return () => {
+            document.removeEventListener('click', handleOutsideClick);
+        };
+    }, []);
 
     return (
         <div className="bg-zinc-700 mt-8 mb-16 rounded-3xl">
