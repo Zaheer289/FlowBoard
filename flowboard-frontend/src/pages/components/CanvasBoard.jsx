@@ -6,7 +6,7 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
   const trRef = useRef();
   const shapeRefs = useRef({});
   const [editingTextId, setEditingTextId] = useState(null);
-  
+
   const containerRef = useRef(null);
   const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
 
@@ -235,7 +235,7 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
                   const transform = node.getTransform();
                   const newPoints = [];
                   for (let i = 0; i < shape.points.length; i += 2) {
-                    const pt = transform.point({ x: shape.points[i], y: shape.points[i+1] });
+                    const pt = transform.point({ x: shape.points[i], y: shape.points[i + 1] });
                     newPoints.push(pt.x, pt.y);
                   }
                   node.x(0);
@@ -255,7 +255,7 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
                   const transform = node.getTransform();
                   const newPoints = [];
                   for (let i = 0; i < shape.points.length; i += 2) {
-                    const pt = transform.point({ x: shape.points[i], y: shape.points[i+1] });
+                    const pt = transform.point({ x: shape.points[i], y: shape.points[i + 1] });
                     newPoints.push(pt.x, pt.y);
                   }
                   node.scaleX(1);
