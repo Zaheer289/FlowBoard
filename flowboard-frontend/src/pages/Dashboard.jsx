@@ -1,5 +1,5 @@
 import NewProjectModal from "./components/NewProjectModal";
-import ProjectList from "./components/ProjectList";
+import ProjectRow from "./components/ProjectRow";
 import Sidebar from "./components/Sidebar";
 import { FiSearch } from "react-icons/fi";
 import { useState, useEffect } from "react";
@@ -67,41 +67,30 @@ function Dashboard() {
                     </button>
                 </div>
                 <div className="px-8">
-                    <div className="bg-zinc-700 mt-8 mb-16 rounded-3xl">
-                        <div className="p-6">
-
-                            <h1 className="text-2xl text-white mb-3">Recent Projects</h1>
-                            <hr className="mx-auto w- h-[3px] border-0 bg-zinc-500 mb-3" />
-                            <div className="">
-                                <ProjectList projectList={filteredProjects} handleLoadProject={handleLoadProject} handleDeleteProject={handleDeleteProject} />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="bg-zinc-700 mt-8 mb-16 rounded-3xl">
-                        <div className="p-6">
-                            <h1 className="text-2xl text-white mb-3">Starred Projects</h1>
-                            <hr className="mx-auto w- h-[3px] border-0 bg-zinc-500 mb-3" />
-                            <div className="">
-                                <ProjectList projectList={filteredProjects} handleLoadProject={handleLoadProject} handleDeleteProject={handleDeleteProject} />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="bg-zinc-700 mt-8 mb-16 rounded-3xl">
-                        <div className="p-6">
-                            <h1 className="text-2xl text-white mb-3">Shared Projects</h1>
-                            <hr className="mx-auto w- h-[3px] border-0 bg-zinc-500 mb-3" />
-                            <div className="">
-                                <ProjectList projectList={filteredProjects} handleLoadProject={handleLoadProject} handleDeleteProject={handleDeleteProject} />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="bg-zinc-700 mt-8 mb-16 rounded-3xl">
-                        <div className="p-6">
-                            <h1 className="text-2xl text-white mb-3">Community</h1>
-                            <hr className="mx-auto w- h-[3px] border-0 bg-zinc-500 mb-3" />
-                            {/*Insert recent projects container here.... */}
-                        </div>
-                    </div>
+                    <ProjectRow 
+                        title="Recent Projects" 
+                        projects={filteredProjects} 
+                        handleLoadProject={handleLoadProject} 
+                        handleDeleteProject={handleDeleteProject} 
+                    />
+                    <ProjectRow 
+                        title="Starred Projects" 
+                        projects={filteredProjects} 
+                        handleLoadProject={handleLoadProject} 
+                        handleDeleteProject={handleDeleteProject} 
+                    />
+                    <ProjectRow 
+                        title="Shared Projects" 
+                        projects={filteredProjects} 
+                        handleLoadProject={handleLoadProject} 
+                        handleDeleteProject={handleDeleteProject} 
+                    />
+                    <ProjectRow 
+                        title="Community" 
+                        projects={[]} 
+                        handleLoadProject={handleLoadProject} 
+                        handleDeleteProject={handleDeleteProject} 
+                    />
                 </div>
             </main>
             <NewProjectModal isOpen={isModalOpen} onClose={() => setModalOpen(false)} />
