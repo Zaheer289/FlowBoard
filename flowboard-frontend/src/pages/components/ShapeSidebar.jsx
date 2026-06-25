@@ -3,7 +3,7 @@ import { FaRegCircle } from "react-icons/fa";
 import { TfiText } from "react-icons/tfi";
 import { IoTriangleOutline, IoArrowForwardOutline } from "react-icons/io5";
 import { MdOutlineHexagon } from "react-icons/md";
-import { TbArrowCurveRight } from "react-icons/tb";
+import { BsDashLg } from "react-icons/bs";
 import { FiMousePointer } from "react-icons/fi";
 
 function ShapeSidebar({ activeTool, setActiveTool }) {
@@ -13,7 +13,7 @@ function ShapeSidebar({ activeTool, setActiveTool }) {
     { name: "Circle", icon: <FaRegCircle size={20} /> },
     { name: "Triangle", icon: <IoTriangleOutline size={22} /> },
     { name: "Arrow", icon: <IoArrowForwardOutline size={22} /> },
-    { name: "Curved Arrow", icon: <TbArrowCurveRight size={22} /> },
+    { name: "Line", icon: <BsDashLg size={22} /> },
     { name: "Hexagon", icon: <MdOutlineHexagon size={22} /> },
     { name: "Text", icon: <TfiText size={20} /> },
   ];
