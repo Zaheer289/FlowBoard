@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import '../styles/dashboard.css';
 import api from "../../api/axios.js";
 import { useNavigate } from "react-router-dom";
+import Modal from "../../components/Modal";
 
 export default function NewProjectModal({ isOpen, onClose }) {
   const navigate = useNavigate();
@@ -57,18 +58,9 @@ export default function NewProjectModal({ isOpen, onClose }) {
     });
   };
 
-  if (!isOpen) return null;
-
   return (
-    <>
-    <div className="fixed inset-0 opacity-80 bg-black z-40"></div>
-    <div className="fixed inset-0 flex items-center justify-center z-50">
-      <div className="bg-zinc-800 rounded-2xl shadow-xl w-full max-w-3xl bg-opacity-20 px-12 py-6 text-white">
-        <h2 className="text-3xl font-semibold mb-4 text-center new-project-title text-cyan-400">
-          Create New Project
-        </h2>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <Modal isOpen={isOpen} onClose={onClose} title="Create New Project">
+        <form onSubmit={handleSubmit} className="space-y-4 text-white">
           {/* Project Name */}
           <div>
             <label className="block text-sm font-medium mb-1">Project Name *</label>
@@ -168,8 +160,6 @@ export default function NewProjectModal({ isOpen, onClose }) {
             </button>
           </div>
         </form>
-      </div>
-    </div>
-    </>
+    </Modal>
   );
 }

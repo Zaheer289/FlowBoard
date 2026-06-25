@@ -10,7 +10,7 @@ import {
   CarouselPrevious
 } from "@/components/ui/carousel";
 
-function ProjectList({ projectList, handleLoadProject, handleDeleteProject, selectedCardId, handleCardClick, setSelectedCardId }) {
+function ProjectList({ projectList, handleLoadProject, handleDeleteProject, selectedCardId, handleCardClick, setSelectedCardId, handleOpenSettings }) {
   const shouldLoop = projectList && projectList.length > 4;
 
   return (
@@ -34,6 +34,7 @@ function ProjectList({ projectList, handleLoadProject, handleDeleteProject, sele
                 handleDeleteProject={handleDeleteProject}
                 isSelected={selectedCardId === project._id}
                 handleCardClick={handleCardClick}
+                handleOpenSettings={handleOpenSettings}
             />
           </CarouselItem>
         ))}

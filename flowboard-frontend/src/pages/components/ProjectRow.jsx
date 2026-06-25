@@ -1,7 +1,7 @@
 import { useState } from "react";
 import ProjectList from "./ProjectList";
 
-function ProjectRow({ title, projects, handleLoadProject, handleDeleteProject }) {
+function ProjectRow({ title, projects, handleLoadProject, handleDeleteProject, handleOpenSettings }) {
     const [selectedCardId, setSelectedCardId] = useState(null);
 
     const handleCardClick = (projectId) => {
@@ -21,6 +21,7 @@ function ProjectRow({ title, projects, handleLoadProject, handleDeleteProject })
                         selectedCardId={selectedCardId} 
                         handleCardClick={handleCardClick} 
                         setSelectedCardId={setSelectedCardId} 
+                        handleOpenSettings={handleOpenSettings}
                     />
                 </div>
             </div>

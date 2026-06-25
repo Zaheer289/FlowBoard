@@ -76,6 +76,30 @@ export const deleteProject = async (req, res) => {
     }
 }
 
+export const updateProject = async (req, res) => {
+    const projectId = req.params.id;
+    const { name, visibility, description, tags } = req.body;
+    try {
+        const project = await Project.findById(projectId);
+        if (!project) return res.status(404).json({ message: "Project not found" });
+        if (project.owner.toString() !== (req.user.id || req.user._id).toString()) {
+            return res.status(403).json({ message: "Unauthorized" });
+        }
+
+        if (name !== undefined) project.name = name;
+        if (visibility !== undefined) project.visibility = visibility;
+        if (description !== undefined) project.description = description;
+        if (tags !== undefined) project.tags = tags;
+
+        await project.save();
+
+        res.status(200).json({ message: "Project updated successfully", data: project });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Error updating project" });
+    }
+}
+
 export const getProjects = async (req, res) => {
     const userId = req.user.id || req.user._id;
 

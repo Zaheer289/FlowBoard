@@ -3,7 +3,7 @@ import { IoSettingsOutline } from "react-icons/io5";
 import { FiTrash2 } from "react-icons/fi";
 import { useState } from "react";
 
-function ProjectCard({ id, name, thumbnail, lastEdited, starred, setArchive, handleLoadProject, handleDeleteProject, isSelected, handleCardClick }) {
+function ProjectCard({ id, name, thumbnail, lastEdited, starred, setArchive, handleLoadProject, handleDeleteProject, isSelected, handleCardClick, handleOpenSettings }) {
   const [isStarred, setIsStarred] = useState(starred || false);
   return (
     <div
@@ -64,7 +64,10 @@ function ProjectCard({ id, name, thumbnail, lastEdited, starred, setArchive, han
             Load Project
           </button>
           <button
-            onClick={() => console.log('Settings clicked for', id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleOpenSettings(id);
+            }}
             className="p-2 bg-gray-700 hover:bg-gray-600 text-white text-sm font-bold rounded shadow-lg transition-colors cursor-pointer"
           >
             <IoSettingsOutline size={20} />
