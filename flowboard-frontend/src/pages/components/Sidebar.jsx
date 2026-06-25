@@ -13,7 +13,6 @@ function Sidebar() {
             try {
                 const res = await api.get('/auth/verify');
                 setUser(res.data.user);
-                console.log(res.data.user);
             } catch (err) {
                 console.error("Failed to fetch user profile");
             }
