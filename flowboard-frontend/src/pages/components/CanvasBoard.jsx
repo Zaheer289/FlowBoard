@@ -1,7 +1,12 @@
 import { Stage, Layer, Rect, Circle, Text, Transformer, Ellipse, Line, Arrow } from "react-konva";
 import { useRef, useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { setElements } from "../../features/board/boardSlice";
 
-function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selectedElementIds, setSelectedElementIds, selectionRect, setSelectionRect }) {
+function CanvasBoard({ activeTool, setActiveTool, selectedElementIds, setSelectedElementIds, selectionRect, setSelectionRect }) {
+  const dispatch = useDispatch();
+  const elements = useSelector(state => state.board.present.elements);
+  const [activeElement, setActiveElement] = useState(null);
   const isDrawing = useRef(false);
   const trRef = useRef();
   const shapeRefs = useRef({});
@@ -79,7 +84,7 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
         newElement.height = 0;
       }
 
-      setElements([...elements, newElement]);
+      setActiveElement(newElement);
       isDrawing.current = true;
     }
   };
@@ -101,10 +106,10 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
 
     const isShiftPressed = e.evt.shiftKey;
 
-    // Update the width and height of the last element being drawn
-    setElements((prevElements) => {
-      const lastIndex = prevElements.length - 1;
-      const lastElement = { ...prevElements[lastIndex] };
+    // Update the width and height of the local active element
+    setActiveElement((prevElement) => {
+      if (!prevElement) return null;
+      const lastElement = { ...prevElement };
 
       if (lastElement.type === 'arrow' || lastElement.type === 'line') {
         let currentX = pos.x;
@@ -135,9 +140,7 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
         lastElement.height = height;
       }
 
-      const newElements = [...prevElements];
-      newElements[lastIndex] = lastElement;
-      return newElements;
+      return lastElement;
     });
   };
 
@@ -182,6 +185,10 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
     }
 
     if (isDrawing.current) {
+      if (activeElement) {
+        dispatch(setElements([...elements, activeElement]));
+        setActiveElement(null);
+      }
       isDrawing.current = false;
       // Revert back to selection mode so the user doesn't accidentally draw another shape immediately
       setActiveTool('select');
@@ -201,7 +208,7 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
         onTouchEnd={handleMouseUp}
       >
         <Layer>
-          {elements.map((shape) => {
+          {(activeElement ? [...elements, activeElement] : elements).map((shape) => {
             const commonProps = {
               id: shape.id,
               ref: (node) => { shapeRefs.current[shape.id] = node; },
@@ -240,13 +247,13 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
                   }
                   node.x(0);
                   node.y(0);
-                  setElements(elements.map(el =>
+                  dispatch(setElements(elements.map(el =>
                     el.id === shape.id ? { ...el, points: newPoints, x: 0, y: 0 } : el
-                  ));
+                  )));
                 } else {
-                  setElements(elements.map(el =>
+                  dispatch(setElements(elements.map(el =>
                     el.id === shape.id ? { ...el, x: node.x(), y: node.y() } : el
-                  ));
+                  )));
                 }
               },
               onTransformEnd: (e) => {
@@ -263,9 +270,9 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
                   node.rotation(0);
                   node.x(0);
                   node.y(0);
-                  setElements(elements.map(el =>
+                  dispatch(setElements(elements.map(el =>
                     el.id === shape.id ? { ...el, points: newPoints, x: 0, y: 0 } : el
-                  ));
+                  )));
                 } else {
                   const scaleX = node.scaleX();
                   const scaleY = node.scaleY();
@@ -273,7 +280,7 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
                   node.scaleX(1);
                   node.scaleY(1);
 
-                  setElements(elements.map(el =>
+                  dispatch(setElements(elements.map(el =>
                     el.id === shape.id ? {
                       ...el,
                       x: node.x(),
@@ -282,7 +289,7 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
                       height: Math.max(5, node.height() * scaleY),
                       rotation: node.rotation()
                     } : el
-                  ));
+                  )));
                 }
               }
             };
@@ -337,7 +344,7 @@ function CanvasBoard({ elements, setElements, activeTool, setActiveTool, selecte
               autoFocus
               defaultValue={shape.text}
               onBlur={(e) => {
-                setElements(elements.map(el => el.id === shape.id ? { ...el, text: e.target.value } : el));
+                dispatch(setElements(elements.map(el => el.id === shape.id ? { ...el, text: e.target.value } : el)));
                 setEditingTextId(null);
               }}
               onKeyDown={(e) => {

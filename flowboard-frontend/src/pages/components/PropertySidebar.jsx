@@ -1,58 +1,64 @@
 import { FiArrowUp, FiArrowDown, FiChevronsUp, FiChevronsDown } from "react-icons/fi";
+import { useSelector, useDispatch } from "react-redux";
+import { setElements } from "../../features/board/boardSlice";
 
-function PropertySidebar({ elements, selectedElementIds, setElements, setSelectedElementIds }) {
+function PropertySidebar({ selectedElementIds, setSelectedElementIds }) {
+  const elements = useSelector(state => state.board.present.elements);
+  const dispatch = useDispatch();
   const selectedShape = selectedElementIds.length === 1 && elements ? elements.find(el => el.id === selectedElementIds[0]) : null;
 
   const handleChange = (property, value, isNumeric = false) => {
     const finalValue = isNumeric ? (parseFloat(value) || 0) : value;
-    setElements(elements.map(el =>
+    dispatch(setElements(elements.map(el =>
       selectedElementIds.includes(el.id) ? { ...el, [property]: finalValue } : el
-    ));
+    )));
   };
 
   const handleDelete = () => {
-    setElements(elements.filter(el => !selectedElementIds.includes(el.id)));
+    dispatch(setElements(elements.filter(el => !selectedElementIds.includes(el.id))));
     setSelectedElementIds([]);
   };
 
   const bringToFront = () => {
-    setElements(prev => {
-      const selected = prev.filter(el => selectedElementIds.includes(el.id));
-      const unselected = prev.filter(el => !selectedElementIds.includes(el.id));
-      return [...unselected, ...selected];
-    });
+    const selected = elements.filter(el => selectedElementIds.includes(el.id));
+    const unselected = elements.filter(el => !selectedElementIds.includes(el.id));
+    dispatch(setElements([...unselected, ...selected]));
   };
 
   const sendToBack = () => {
-    setElements(prev => {
-      const selected = prev.filter(el => selectedElementIds.includes(el.id));
-      const unselected = prev.filter(el => !selectedElementIds.includes(el.id));
-      return [...selected, ...unselected];
-    });
+    const selected = elements.filter(el => selectedElementIds.includes(el.id));
+    const unselected = elements.filter(el => !selectedElementIds.includes(el.id));
+    dispatch(setElements([...selected, ...unselected]));
   };
 
   const bringForward = () => {
-    setElements(prev => {
-      const newElements = [...prev];
-      for (let i = newElements.length - 2; i >= 0; i--) {
-        if (selectedElementIds.includes(newElements[i].id) && !selectedElementIds.includes(newElements[i + 1].id)) {
-          [newElements[i], newElements[i + 1]] = [newElements[i + 1], newElements[i]];
-        }
+    const newElements = [...elements];
+    for (let i = newElements.length - 2; i >= 0; i--) {
+      if (selectedElementIds.includes(newElements[i].id) && !selectedElementIds.includes(newElements[i + 1].id)) {
+        [newElements[i], newElements[i + 1]] = [newElements[i + 1], newElements[i]];
       }
-      return newElements;
-    });
+    }
+    dispatch(setElements(newElements));
   };
 
   const sendBackward = () => {
-    setElements(prev => {
-      const newElements = [...prev];
-      for (let i = 1; i < newElements.length; i++) {
-        if (selectedElementIds.includes(newElements[i].id) && !selectedElementIds.includes(newElements[i - 1].id)) {
-          [newElements[i], newElements[i - 1]] = [newElements[i - 1], newElements[i]];
-        }
+    const newElements = [...elements];
+    for (let i = 1; i < newElements.length; i++) {
+      if (selectedElementIds.includes(newElements[i].id) && !selectedElementIds.includes(newElements[i - 1].id)) {
+        [newElements[i], newElements[i - 1]] = [newElements[i - 1], newElements[i]];
       }
-      return newElements;
-    });
+    }
+    dispatch(setElements(newElements));
+  };
+
+  const getDisplayX = (el) => {
+      if (el.type === 'line' || el.type === 'arrow') return Math.round(Math.min(el.points[0], el.points[2]));
+      return Math.round(el.x);
+  };
+
+  const getDisplayY = (el) => {
+      if (el.type === 'line' || el.type === 'arrow') return Math.round(Math.min(el.points[1], el.points[3]));
+      return Math.round(el.y);
   };
 
   return (
@@ -85,8 +91,18 @@ function PropertySidebar({ elements, selectedElementIds, setElements, setSelecte
             <label className="text-sm text-gray-400">X Position</label>
             <input
               type="number"
-              value={Math.round(selectedShape.x || 0)}
-              onChange={(e) => handleChange('x', e.target.value, true)}
+              value={getDisplayX(selectedShape)}
+              onChange={(e) => {
+                const val = parseFloat(e.target.value);
+                if (selectedShape.type === 'line' || selectedShape.type === 'arrow') {
+                    const currentX = Math.min(selectedShape.points[0], selectedShape.points[2]);
+                    const dx = val - currentX;
+                    const newPoints = [selectedShape.points[0] + dx, selectedShape.points[1], selectedShape.points[2] + dx, selectedShape.points[3]];
+                    dispatch(setElements(elements.map(el => el.id === selectedShape.id ? { ...el, points: newPoints } : el)));
+                } else {
+                    handleChange('x', e.target.value, true);
+                }
+              }}
               className="w-full mt-1 p-2 bg-zinc-800 border border-cyan-700 text-white rounded-md focus:border-cyan-400 outline-none transition-all"
             />
           </div>
@@ -94,8 +110,18 @@ function PropertySidebar({ elements, selectedElementIds, setElements, setSelecte
             <label className="text-sm text-gray-400">Y Position</label>
             <input
               type="number"
-              value={Math.round(selectedShape.y || 0)}
-              onChange={(e) => handleChange('y', e.target.value, true)}
+              value={getDisplayY(selectedShape)}
+              onChange={(e) => {
+                const val = parseFloat(e.target.value);
+                if (selectedShape.type === 'line' || selectedShape.type === 'arrow') {
+                    const currentY = Math.min(selectedShape.points[1], selectedShape.points[3]);
+                    const dy = val - currentY;
+                    const newPoints = [selectedShape.points[0], selectedShape.points[1] + dy, selectedShape.points[2], selectedShape.points[3] + dy];
+                    dispatch(setElements(elements.map(el => el.id === selectedShape.id ? { ...el, points: newPoints } : el)));
+                } else {
+                    handleChange('y', e.target.value, true);
+                }
+              }}
               className="w-full mt-1 p-2 bg-zinc-800 border border-cyan-700 text-white rounded-md focus:border-cyan-400 outline-none transition-all"
             />
           </div>
@@ -159,11 +185,11 @@ function PropertySidebar({ elements, selectedElementIds, setElements, setSelecte
                   const newX = cx - (lcx * Math.cos(radNew) - lcy * Math.sin(radNew));
                   const newY = cy - (lcx * Math.sin(radNew) + lcy * Math.cos(radNew));
 
-                  setElements(elements.map(el =>
+                  dispatch(setElements(elements.map(el =>
                     selectedElementIds.includes(el.id)
                       ? { ...el, rotation: newAngle, x: newX, y: newY }
                       : el
-                  ));
+                  )));
                 }
               }}
               className="w-full mt-1 p-2 bg-zinc-800 border border-cyan-700 text-white rounded-md focus:border-cyan-400 outline-none transition-all"
