@@ -10,7 +10,7 @@ import {
   CarouselPrevious
 } from "@/components/ui/carousel";
 
-function ProjectList({ projectList }) {
+function ProjectList({ projectList, handleLoadProject, handleDeleteProject }) {
   const shouldLoop = projectList && projectList.length > 4;
 
   return (
@@ -30,6 +30,8 @@ function ProjectList({ projectList }) {
                 starred={false}
                 archived={false}
                 setArchive={() => {}}
+                handleLoadProject={handleLoadProject}
+                handleDeleteProject={handleDeleteProject}
             />
           </CarouselItem>
         ))}

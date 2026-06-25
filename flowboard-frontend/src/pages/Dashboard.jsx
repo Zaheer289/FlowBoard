@@ -3,12 +3,30 @@ import ProjectList from "./components/ProjectList";
 import Sidebar from "./components/Sidebar";
 import { FiSearch } from "react-icons/fi";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../api/axios.js";
+import { deleteProject } from "../api/projects.js";
 
 function Dashboard() {
     const [projects, setProjects] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [isModalOpen, setModalOpen] = useState(false);
+    const navigate = useNavigate();
+
+    const handleLoadProject = (projectId) => {
+        navigate(`/projects/${projectId}`);
+    };
+
+    const handleDeleteProject = async (e, projectId) => {
+        e.stopPropagation();
+        if (!window.confirm("Are you sure you want to delete this project?")) return;
+        try {
+            await deleteProject(projectId);
+            setProjects(prev => prev.filter(p => p._id !== projectId));
+        } catch (error) {
+            console.error("Failed to delete project", error);
+        }
+    };
 
     useEffect(() => {
         const fetchProjects = async () => {
@@ -55,7 +73,7 @@ function Dashboard() {
                             <h1 className="text-2xl text-white mb-3">Recent Projects</h1>
                             <hr className="mx-auto w- h-[3px] border-0 bg-zinc-500 mb-3" />
                             <div className="">
-                                <ProjectList projectList={filteredProjects} />
+                                <ProjectList projectList={filteredProjects} handleLoadProject={handleLoadProject} handleDeleteProject={handleDeleteProject} />
                             </div>
                         </div>
                     </div>
@@ -64,7 +82,7 @@ function Dashboard() {
                             <h1 className="text-2xl text-white mb-3">Starred Projects</h1>
                             <hr className="mx-auto w- h-[3px] border-0 bg-zinc-500 mb-3" />
                             <div className="">
-                                <ProjectList projectList={filteredProjects} />
+                                <ProjectList projectList={filteredProjects} handleLoadProject={handleLoadProject} handleDeleteProject={handleDeleteProject} />
                             </div>
                         </div>
                     </div>
@@ -73,7 +91,7 @@ function Dashboard() {
                             <h1 className="text-2xl text-white mb-3">Shared Projects</h1>
                             <hr className="mx-auto w- h-[3px] border-0 bg-zinc-500 mb-3" />
                             <div className="">
-                                <ProjectList projectList={filteredProjects} />
+                                <ProjectList projectList={filteredProjects} handleLoadProject={handleLoadProject} handleDeleteProject={handleDeleteProject} />
                             </div>
                         </div>
                     </div>

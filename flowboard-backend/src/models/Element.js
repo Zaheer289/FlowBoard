@@ -7,7 +7,7 @@ const elementSchema = new mongoose.Schema({
         required: true},
     type: {
         type: String,
-        enum: ["Shape", "image", "line", "text", "graph", "table", "arrow"],
+        enum: ["rectangle", "ellipse", "circle", "triangle", "hexagon", "arrow", "line", "text", "image", "graph", "table"],
         required: true
     },
     data: {

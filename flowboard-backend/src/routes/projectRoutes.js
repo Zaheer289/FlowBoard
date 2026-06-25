@@ -6,9 +6,9 @@ const router = express.Router();
 
 router.post("/projects", verifyAccessToken, createProject);
 
-router.put("/projects", verifyAccessToken, saveProject);
+router.put("/projects/:id/save", verifyAccessToken, saveProject);
 
-router.delete("/projects", verifyAccessToken, deleteProject);
+router.delete("/projects/:id", verifyAccessToken, deleteProject);
 
 router.get("/projects", verifyAccessToken, getProjects);
 

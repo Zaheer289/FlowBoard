@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import api from "../api/axios.js";
+import { saveProjectElements, deleteProject } from "../api/projects.js";
 import ShapeSidebar from "./components/ShapeSidebar";
 import CanvasBoard from "./components/CanvasBoard";
 import PropertySidebar from "./components/PropertySidebar";
@@ -9,6 +10,7 @@ import homeIcon from '../assets/images/flowboard-logo.png';
 
 function Projects() {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [project, setProject] = useState(null);
     const [showLeft, setShowLeft] = useState(true);
     const [showRight, setShowRight] = useState(true);
@@ -25,7 +27,11 @@ function Projects() {
             try {
                 const response = await api.get(`/projects/${id}`);
                 setProject(response.data.data);
-            } catch (err) {
+                if (response.data.data.content && Array.isArray(response.data.data.content)) {
+                    const flatElements = response.data.data.content.map(dbEl => ({ ...dbEl.data, _dbId: dbEl._id }));
+                    setElements(flatElements);
+                }
+            } catch(err) {
                 console.error("Failed to fetch project details", err);
             }
         };
@@ -59,6 +65,31 @@ function Projects() {
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [selectedElementIds]);
+
+    const handleSave = async () => {
+        try {
+            const payload = elements.map(el => ({
+                type: el.type,
+                data: el
+            }));
+            await saveProjectElements(id, payload);
+            alert("Project saved successfully!");
+        } catch (err) {
+            console.error(err);
+            alert("Failed to save project.");
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!window.confirm("Are you sure you want to delete this project?")) return;
+        try {
+            await deleteProject(id);
+            navigate('/dashboard');
+        } catch (err) {
+            console.error(err);
+            alert("Failed to delete project.");
+        }
+    };
     return (
         <div className="h-screen flex flex-col overflow-hidden">
             <div className="flex justify-between items-center py-3 px-6 bg-[#222] border-b border-cyan-700">
@@ -69,11 +100,14 @@ function Projects() {
                 </div>
 
                 <div className="flex gap-3">
-                    <button className="flex items-center gap-2 px-3 py-1 bg-cyan-600 rounded-full hover:bg-cyan-700 text-white">
+                    <button onClick={handleSave} className="flex items-center gap-2 px-3 py-1 bg-cyan-600 rounded-full hover:bg-cyan-700 text-white">
                         <FiSave /> Save
                     </button>
                     <button className="flex items-center gap-2 px-3 py-1 bg-green-500 rounded-full hover:bg-green-600 text-white">
                         <FiShare2 /> Share
+                    </button>
+                    <button onClick={handleDelete} className="flex items-center gap-2 px-3 py-1 bg-red-600 rounded-full hover:bg-red-700 text-white">
+                        Delete
                     </button>
                 </div>
             </div>
