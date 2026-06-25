@@ -51,6 +51,16 @@ function PropertySidebar({ selectedElementIds, setSelectedElementIds }) {
     dispatch(setElements(newElements));
   };
 
+  const getDisplayX = (el) => {
+      if (el.type === 'line' || el.type === 'arrow') return Math.round(Math.min(el.points[0], el.points[2]));
+      return Math.round(el.x);
+  };
+
+  const getDisplayY = (el) => {
+      if (el.type === 'line' || el.type === 'arrow') return Math.round(Math.min(el.points[1], el.points[3]));
+      return Math.round(el.y);
+  };
+
   return (
     <div className="p-4">
       <h2 className="text-lg font-semibold mb-4 text-white">Properties</h2>
@@ -81,8 +91,18 @@ function PropertySidebar({ selectedElementIds, setSelectedElementIds }) {
             <label className="text-sm text-gray-400">X Position</label>
             <input
               type="number"
-              value={Math.round(selectedShape.x || 0)}
-              onChange={(e) => handleChange('x', e.target.value, true)}
+              value={getDisplayX(selectedShape)}
+              onChange={(e) => {
+                const val = parseFloat(e.target.value);
+                if (selectedShape.type === 'line' || selectedShape.type === 'arrow') {
+                    const currentX = Math.min(selectedShape.points[0], selectedShape.points[2]);
+                    const dx = val - currentX;
+                    const newPoints = [selectedShape.points[0] + dx, selectedShape.points[1], selectedShape.points[2] + dx, selectedShape.points[3]];
+                    dispatch(setElements(elements.map(el => el.id === selectedShape.id ? { ...el, points: newPoints } : el)));
+                } else {
+                    handleChange('x', e.target.value, true);
+                }
+              }}
               className="w-full mt-1 p-2 bg-zinc-800 border border-cyan-700 text-white rounded-md focus:border-cyan-400 outline-none transition-all"
             />
           </div>
@@ -90,8 +110,18 @@ function PropertySidebar({ selectedElementIds, setSelectedElementIds }) {
             <label className="text-sm text-gray-400">Y Position</label>
             <input
               type="number"
-              value={Math.round(selectedShape.y || 0)}
-              onChange={(e) => handleChange('y', e.target.value, true)}
+              value={getDisplayY(selectedShape)}
+              onChange={(e) => {
+                const val = parseFloat(e.target.value);
+                if (selectedShape.type === 'line' || selectedShape.type === 'arrow') {
+                    const currentY = Math.min(selectedShape.points[1], selectedShape.points[3]);
+                    const dy = val - currentY;
+                    const newPoints = [selectedShape.points[0], selectedShape.points[1] + dy, selectedShape.points[2], selectedShape.points[3] + dy];
+                    dispatch(setElements(elements.map(el => el.id === selectedShape.id ? { ...el, points: newPoints } : el)));
+                } else {
+                    handleChange('y', e.target.value, true);
+                }
+              }}
               className="w-full mt-1 p-2 bg-zinc-800 border border-cyan-700 text-white rounded-md focus:border-cyan-400 outline-none transition-all"
             />
           </div>
