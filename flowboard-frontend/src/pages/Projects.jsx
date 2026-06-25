@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from 'react-redux';
+import { ActionCreators } from 'redux-undo';
+import { setElements } from '../features/board/boardSlice';
 import api from "../api/axios.js";
 import { saveProjectElements, deleteProject } from "../api/projects.js";
 import ShapeSidebar from "./components/ShapeSidebar";
@@ -16,7 +19,10 @@ function Projects() {
     const [showRight, setShowRight] = useState(true);
 
     // Whiteboard Global State
-    const [elements, setElements] = useState([]);
+    const dispatch = useDispatch();
+    const elements = useSelector(state => state.board.present.elements);
+    const past = useSelector(state => state.board.past);
+    const future = useSelector(state => state.board.future);
     const [selectedElementIds, setSelectedElementIds] = useState([]);
     const [selectionRect, setSelectionRect] = useState(null);
     const [activeTool, setActiveTool] = useState('select');
@@ -29,7 +35,7 @@ function Projects() {
                 setProject(response.data.data);
                 if (response.data.data.content && Array.isArray(response.data.data.content)) {
                     const flatElements = response.data.data.content.map(dbEl => ({ ...dbEl.data, _dbId: dbEl._id }));
-                    setElements(flatElements);
+                    dispatch(setElements(flatElements));
                 }
             } catch(err) {
                 console.error("Failed to fetch project details", err);
@@ -46,7 +52,7 @@ function Projects() {
 
             if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
                 e.preventDefault();
-                setElements(prevElements => prevElements.map(el => {
+                dispatch(setElements(elements.map(el => {
                     if (!selectedElementIds.includes(el.id)) return el;
                     let newX = el.x;
                     let newY = el.y;
@@ -55,16 +61,16 @@ function Projects() {
                     if (e.key === 'ArrowLeft') newX -= 1;
                     if (e.key === 'ArrowRight') newX += 1;
                     return { ...el, x: newX, y: newY };
-                }));
+                })));
             } else if (e.key === 'Delete' || e.key === 'Backspace') {
-                setElements(prev => prev.filter(el => !selectedElementIds.includes(el.id)));
+                dispatch(setElements(elements.filter(el => !selectedElementIds.includes(el.id))));
                 setSelectedElementIds([]);
             }
         };
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [selectedElementIds]);
+    }, [selectedElementIds, elements, dispatch]);
 
     const handleSave = async () => {
         try {
@@ -100,6 +106,20 @@ function Projects() {
                 </div>
 
                 <div className="flex gap-3">
+                    <button 
+                        onClick={() => dispatch(ActionCreators.undo())} 
+                        disabled={past.length === 0}
+                        className={`flex items-center gap-2 px-3 py-1 rounded-full text-white ${past.length === 0 ? 'bg-zinc-700 opacity-50 cursor-not-allowed' : 'bg-zinc-600 hover:bg-zinc-500'}`}
+                    >
+                        Undo
+                    </button>
+                    <button 
+                        onClick={() => dispatch(ActionCreators.redo())} 
+                        disabled={future.length === 0}
+                        className={`flex items-center gap-2 px-3 py-1 rounded-full text-white ${future.length === 0 ? 'bg-zinc-700 opacity-50 cursor-not-allowed' : 'bg-zinc-600 hover:bg-zinc-500'}`}
+                    >
+                        Redo
+                    </button>
                     <button onClick={handleSave} className="flex items-center gap-2 px-3 py-1 bg-cyan-600 rounded-full hover:bg-cyan-700 text-white">
                         <FiSave /> Save
                     </button>
@@ -131,8 +151,6 @@ function Projects() {
 
                 <div className="flex-1 relative h-full w-full flex justify-center items-center bg-[#111]">
                     <CanvasBoard
-                        elements={elements}
-                        setElements={setElements}
                         activeTool={activeTool}
                         setActiveTool={setActiveTool}
                         selectedElementIds={selectedElementIds}
@@ -148,7 +166,7 @@ function Projects() {
                 >
                     {showRight && (
                         <div className="h-full overflow-y-auto">
-                            <PropertySidebar elements={elements} selectedElementIds={selectedElementIds} setElements={setElements} setSelectedElementIds={setSelectedElementIds} />
+                            <PropertySidebar selectedElementIds={selectedElementIds} setSelectedElementIds={setSelectedElementIds} />
                         </div>
                     )}
                     <button
