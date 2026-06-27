@@ -16,6 +16,7 @@ function CanvasBoard({ activeTool, setActiveTool, selectedElementIds, setSelecte
 
   const { id: projectId } = useParams();
   const socketRef = useRef(null);
+  const [activeUsers, setActiveUsers] = useState([]);
 
   const containerRef = useRef(null);
   const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
@@ -47,6 +48,20 @@ function CanvasBoard({ activeTool, setActiveTool, selectedElementIds, setSelecte
           socketRef.current.emit('join-project', { projectId });
       });
 
+      // Listen for new users joining
+      socketRef.current.on('user-joined', (newUser) => {
+          setActiveUsers((prev) => {
+              // Prevent duplicates just in case of reconnects
+              if (prev.some(u => u.userId === newUser.userId)) return prev;
+              return [...prev, newUser];
+          });
+      });
+
+      // Listen for users leaving
+      socketRef.current.on('user-left', ({ userId }) => {
+          setActiveUsers((prev) => prev.filter(u => u.userId !== userId));
+      });
+
       // 4. Basic error logging for authentication failures
       socketRef.current.on('connect_error', (err) => {
           console.error('Socket connection error:', err.message);
@@ -55,6 +70,8 @@ function CanvasBoard({ activeTool, setActiveTool, selectedElementIds, setSelecte
       // 5. CRITICAL CLEANUP: Disconnect the socket when the component unmounts
       return () => {
           if (socketRef.current) {
+              socketRef.current.off('user-joined');
+              socketRef.current.off('user-left');
               socketRef.current.disconnect();
               console.log('Disconnected from WebSocket server');
           }
@@ -233,6 +250,19 @@ function CanvasBoard({ activeTool, setActiveTool, selectedElementIds, setSelecte
 
   return (
     <div ref={containerRef} className="w-full h-full overflow-hidden fb-canvas-container" style={{ position: 'relative' }}>
+      {/* Active Users Avatar Stack */}
+      <div className="absolute top-4 right-20 flex items-center -space-x-2 z-50">
+          {activeUsers.map((user) => (
+              <div 
+                  key={user.userId} 
+                  title={user.username}
+                  className="w-8 h-8 rounded-full bg-cyan-700 border-2 border-[#111] flex items-center justify-center text-white text-xs font-bold shadow-md cursor-help transition-transform hover:-translate-y-1 hover:z-10"
+              >
+                  {/* Display the first letter of their username */}
+                  {user.username ? user.username.charAt(0).toUpperCase() : '?'}
+              </div>
+          ))}
+      </div>
       <Stage
         width={stageSize.width}
         height={stageSize.height}
