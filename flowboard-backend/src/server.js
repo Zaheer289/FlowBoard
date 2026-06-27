@@ -7,7 +7,8 @@ import {connectDB} from './config/db.js'
 import cors from 'cors';
 import cookieParser from "cookie-parser";
 import authRouter from "./routes/authRoutes.js";
-import projectRouter from "./routes/projectRoutes.js"
+import projectRouter from "./routes/projectRoutes.js";
+import roomHandler from "./sockets/roomHandler.js";
 
 dotenv.config();
 
@@ -55,6 +56,9 @@ io.use((socket, next) => {
 
 io.on('connection', (socket) => {
     console.log(`User connected: ${socket.user.id || socket.user._id}`);
+
+    // Register room lifecycle handlers
+    roomHandler(io, socket);
 
     socket.on('disconnect', () => {
         console.log(`User disconnected: ${socket.user.id || socket.user._id}`);
