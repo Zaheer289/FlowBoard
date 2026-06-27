@@ -29,7 +29,7 @@
     "react-router-dom": "^7.9.4",
     "redux": "^5.0.1",
     "redux-undo": "^1.1.0",
-    "socket.io-client": "^4.8.1",
+    "socket.io-client": "^4.8.3",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.14"
   },

@@ -1,5 +1,7 @@
 import { Stage, Layer, Rect, Circle, Text, Transformer, Ellipse, Line, Arrow } from "react-konva";
 import { useRef, useEffect, useState } from "react";
+import { io } from "socket.io-client";
+import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { setElements } from "../../features/board/boardSlice";
 
@@ -11,6 +13,9 @@ function CanvasBoard({ activeTool, setActiveTool, selectedElementIds, setSelecte
   const trRef = useRef();
   const shapeRefs = useRef({});
   const [editingTextId, setEditingTextId] = useState(null);
+
+  const { id: projectId } = useParams();
+  const socketRef = useRef(null);
 
   const containerRef = useRef(null);
   const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
@@ -24,6 +29,37 @@ function CanvasBoard({ activeTool, setActiveTool, selectedElementIds, setSelecte
     observer.observe(containerRef.current);
     return () => observer.disconnect();
   }, []);
+
+  useEffect(() => {
+      if (!projectId) return;
+
+      // 1. Fetch the JWT token from localStorage
+      const token = localStorage.getItem('token'); 
+
+      // 2. Initialize the socket connection, passing the token in the auth payload
+      socketRef.current = io('http://localhost:5000', {
+          auth: { token }
+      });
+
+      // 3. Once successfully connected, emit the join-project event
+      socketRef.current.on('connect', () => {
+          console.log('Connected to WebSocket server');
+          socketRef.current.emit('join-project', { projectId });
+      });
+
+      // 4. Basic error logging for authentication failures
+      socketRef.current.on('connect_error', (err) => {
+          console.error('Socket connection error:', err.message);
+      });
+
+      // 5. CRITICAL CLEANUP: Disconnect the socket when the component unmounts
+      return () => {
+          if (socketRef.current) {
+              socketRef.current.disconnect();
+              console.log('Disconnected from WebSocket server');
+          }
+      };
+  }, [projectId]);
 
   useEffect(() => {
     if (selectedElementIds.length > 0 && trRef.current) {
