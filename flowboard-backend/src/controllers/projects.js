@@ -106,7 +106,7 @@ export const getProjects = async (req, res) => {
     const { archived, starred } = req.query;
     let query = { owner: new mongoose.Types.ObjectId(userId) }
 
-    const projects = await Project.find(query).sort({ updatedAt: -1 });
+    const projects = await Project.find(query).populate('collaborators', '_id username').sort({ updatedAt: -1 });
 
     res.status(200).json({ message: "Data retrieved successfully!", data: projects });
 

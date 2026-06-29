@@ -15,6 +15,8 @@ function Dashboard() {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [editingProject, setEditingProject] = useState(null);
     const [tagInput, setTagInput] = useState("");
+    const [collabInput, setCollabInput] = useState('');
+    const [collabError, setCollabError] = useState('');
     const navigate = useNavigate();
 
     const handleLoadProject = (projectId) => {
@@ -48,6 +50,7 @@ function Dashboard() {
                 visibility: editingProject.visibility,
                 description: editingProject.description,
                 tags: editingProject.tags,
+                collaborators: (editingProject.collaborators || []).map(c => c._id || c),
             };
             const response = await api.put(`/projects/${editingProject._id}`, payload);
             if (response.status === 200) {
@@ -65,6 +68,33 @@ function Dashboard() {
             const currentTags = editingProject.tags || [];
             setEditingProject({ ...editingProject, tags: [...currentTags, tagInput.trim()] });
             setTagInput("");
+        }
+    };
+
+    const handleAddCollaborator = async (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault(); // CRITICAL: Prevent form submission
+            setCollabError('');
+            const usernameToFind = collabInput.trim();
+            if (!usernameToFind) return;
+
+            // Prevent adding self or existing collaborators
+            if (editingProject.collaborators?.some(c => c.username === usernameToFind)) {
+                setCollabInput('');
+                return;
+            }
+
+            try {
+                const res = await api.get(`/users/find/${usernameToFind}`);
+                // Add the validated user object to the local state
+                setEditingProject(prev => ({
+                    ...prev,
+                    collaborators: [...(prev.collaborators || []), res.data]
+                }));
+                setCollabInput('');
+            } catch (error) {
+                setCollabError('User not found');
+            }
         }
     };
 
@@ -186,6 +216,36 @@ function Dashboard() {
                                         {tag} &times;
                                     </span>
                                 ))}
+                            </div>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1 text-white">Collaborators</label>
+                            <input
+                                type="text"
+                                value={collabInput}
+                                onChange={(e) => setCollabInput(e.target.value)}
+                                onKeyDown={handleAddCollaborator}
+                                placeholder="Press Enter to add collaborator by username"
+                                className="w-full p-2 border border-cyan-800 rounded-md bg-transparent text-white focus:border-cyan-400 outline-none"
+                            />
+                            {collabError && <p className="text-red-500 text-xs mt-1">{collabError}</p>}
+                            <div className="flex flex-wrap mt-2 gap-2">
+                                {(editingProject.collaborators || []).map((collab, i) => {
+                                    const nameToDisplay = collab.username || collab;
+                                    const idToFilter = collab._id || collab;
+                                    return (
+                                        <span
+                                            key={i}
+                                            className="bg-cyan-600 hover:bg-cyan-700 px-2 py-1 rounded-md text-sm text-white cursor-pointer"
+                                            onClick={() => setEditingProject({ 
+                                                ...editingProject, 
+                                                collaborators: editingProject.collaborators.filter(c => (c._id || c) !== idToFilter) 
+                                            })}
+                                        >
+                                            {nameToDisplay} &times;
+                                        </span>
+                                    );
+                                })}
                             </div>
                         </div>
                         <div>
