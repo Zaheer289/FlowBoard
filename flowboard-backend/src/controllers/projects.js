@@ -116,12 +116,49 @@ export const getProjectById = async (req, res) => {
     try {
         const project = await Project.findById(req.params.id).populate('content');
         if (!project) return res.status(404).json({ message: "Project not found" });
-        // Optional: Ensure the user requesting this is the owner
-        if (project.owner.toString() !== (req.user.id || req.user._id).toString()) {
-            return res.status(403).json({ message: "Unauthorized access to this project" });
+        
+        // Check authorization: Is the user the owner OR a collaborator?
+        const isOwner = project.owner.toString() === (req.user.id || req.user._id).toString();
+        const isCollaborator = project.collaborators.some(
+            collabId => collabId.toString() === (req.user.id || req.user._id).toString()
+        );
+
+        if (!isOwner && !isCollaborator) {
+            return res.status(403).json({ message: "Not authorized to view this project" });
         }
+        
         res.status(200).json({ message: "Data retrieved successfully!", data: project });
     } catch (err) {
         res.status(500).json({ message: "Error retrieving project" });
+    }
+};
+
+export const inviteCollaborator = async (req, res) => {
+    try {
+        const projectId = req.params.id;
+        const { email } = req.body;
+
+        const project = await Project.findById(projectId);
+        if (!project) return res.status(404).json({ message: "Project not found" });
+
+        // Only owner can invite
+        if (project.owner.toString() !== (req.user.id || req.user._id).toString()) {
+            return res.status(403).json({ message: "Only the owner can invite collaborators" });
+        }
+
+        const userToInvite = await User.findOne({ email });
+        if (!userToInvite) return res.status(404).json({ message: "User not found" });
+
+        // Check if already a collaborator
+        if (project.collaborators.includes(userToInvite._id)) {
+            return res.status(400).json({ message: "User is already a collaborator" });
+        }
+
+        project.collaborators.push(userToInvite._id);
+        await project.save();
+
+        res.status(200).json({ message: "Collaborator invited successfully", data: project });
+    } catch (err) {
+        res.status(500).json({ message: "Error inviting collaborator" });
     }
 };

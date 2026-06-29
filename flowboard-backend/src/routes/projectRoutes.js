@@ -1,5 +1,5 @@
 import express from "express";
-import { createProject, saveProject, deleteProject, getProjects, getProjectById, updateProject } from "../controllers/projects.js";
+import { createProject, saveProject, deleteProject, getProjects, getProjectById, updateProject, inviteCollaborator } from "../controllers/projects.js";
 import { verifyAccessToken } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -15,5 +15,7 @@ router.get("/projects", verifyAccessToken, getProjects);
 router.get("/projects/:id", verifyAccessToken, getProjectById);
 
 router.put("/projects/:id", verifyAccessToken, updateProject);
+
+router.post("/projects/:id/invite", verifyAccessToken, inviteCollaborator);
 
 export default router;
