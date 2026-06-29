@@ -26,6 +26,7 @@ function Projects() {
     const [selectedElementIds, setSelectedElementIds] = useState([]);
     const [selectionRect, setSelectionRect] = useState(null);
     const [activeTool, setActiveTool] = useState('select');
+    const [activeUsers, setActiveUsers] = useState([]);
 
     useEffect(() => {
         if (!id) return;
@@ -37,7 +38,7 @@ function Projects() {
                     const flatElements = response.data.data.content.map(dbEl => ({ ...dbEl.data, _dbId: dbEl._id }));
                     dispatch(setElements(flatElements));
                 }
-            } catch(err) {
+            } catch (err) {
                 console.error("Failed to fetch project details", err);
             }
         };
@@ -103,18 +104,30 @@ function Projects() {
                     <img src={homeIcon} alt="flowboard home icon" className="w-12 h-12 p-2 bg-sky-950 rounded-md" />
                     <h2 className="text-xl text-white">{project?.name || 'Loading...'}</h2>
 
+                    {/* Avatar Stack relocated here */}
+                    <div className="flex items-center -space-x-2 ml-4">
+                        {activeUsers.map((user) => (
+                            <div
+                                key={user.userId}
+                                title={user.name}
+                                className="w-8 h-8 rounded-full bg-cyan-700 border-2 border-[#111] flex items-center justify-center text-white text-xs font-bold shadow-md cursor-pointer transition-transform hover:-translate-y-1 hover:z-10"
+                            >
+                                {user.name ? user.name.charAt(0).toUpperCase() : '?'}
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
                 <div className="flex gap-3">
-                    <button 
-                        onClick={() => dispatch(ActionCreators.undo())} 
+                    <button
+                        onClick={() => dispatch(ActionCreators.undo())}
                         disabled={past.length === 0}
                         className={`flex items-center gap-2 px-3 py-1 rounded-full text-white ${past.length === 0 ? 'bg-zinc-700 opacity-50 cursor-not-allowed' : 'bg-zinc-600 hover:bg-zinc-500'}`}
                     >
                         Undo
                     </button>
-                    <button 
-                        onClick={() => dispatch(ActionCreators.redo())} 
+                    <button
+                        onClick={() => dispatch(ActionCreators.redo())}
                         disabled={future.length === 0}
                         className={`flex items-center gap-2 px-3 py-1 rounded-full text-white ${future.length === 0 ? 'bg-zinc-700 opacity-50 cursor-not-allowed' : 'bg-zinc-600 hover:bg-zinc-500'}`}
                     >
@@ -157,6 +170,8 @@ function Projects() {
                         setSelectedElementIds={setSelectedElementIds}
                         selectionRect={selectionRect}
                         setSelectionRect={setSelectionRect}
+                        activeUsers={activeUsers}
+                        setActiveUsers={setActiveUsers}
                     />
                 </div>
 

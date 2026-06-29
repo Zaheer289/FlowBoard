@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { setElements } from "../../features/board/boardSlice";
 
-function CanvasBoard({ activeTool, setActiveTool, selectedElementIds, setSelectedElementIds, selectionRect, setSelectionRect }) {
+function CanvasBoard({ activeTool, setActiveTool, selectedElementIds, setSelectedElementIds, selectionRect, setSelectionRect, activeUsers, setActiveUsers }) {
   const dispatch = useDispatch();
   const elements = useSelector(state => state.board.present.elements);
   const [activeElement, setActiveElement] = useState(null);
@@ -16,7 +16,6 @@ function CanvasBoard({ activeTool, setActiveTool, selectedElementIds, setSelecte
 
   const { id: projectId } = useParams();
   const socketRef = useRef(null);
-  const [activeUsers, setActiveUsers] = useState([]);
 
   const containerRef = useRef(null);
   const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
@@ -45,18 +44,9 @@ function CanvasBoard({ activeTool, setActiveTool, selectedElementIds, setSelecte
       socketRef.current.emit('join-project', { projectId });
     });
 
-    // Listen for new users joining
-    socketRef.current.on('user-joined', (newUser) => {
-      setActiveUsers((prev) => {
-        // Prevent duplicates just in case of reconnects
-        if (prev.some(u => u.userId === newUser.userId)) return prev;
-        return [...prev, newUser];
-      });
-    });
-
-    // Listen for users leaving
-    socketRef.current.on('user-left', ({ userId }) => {
-      setActiveUsers((prev) => prev.filter(u => u.userId !== userId));
+    // Listen for room users update
+    socketRef.current.on('room-users-update', (users) => {
+      setActiveUsers(users);
     });
 
     // 4. Basic error logging for authentication failures
@@ -67,8 +57,7 @@ function CanvasBoard({ activeTool, setActiveTool, selectedElementIds, setSelecte
     // 5. CRITICAL CLEANUP: Disconnect the socket when the component unmounts
     return () => {
       if (socketRef.current) {
-        socketRef.current.off('user-joined');
-        socketRef.current.off('user-left');
+        socketRef.current.off('room-users-update');
         socketRef.current.disconnect();
         console.log('Disconnected from WebSocket server');
       }
@@ -247,19 +236,6 @@ function CanvasBoard({ activeTool, setActiveTool, selectedElementIds, setSelecte
 
   return (
     <div ref={containerRef} className="w-full h-full overflow-hidden fb-canvas-container" style={{ position: 'relative' }}>
-      {/* Active Users Avatar Stack */}
-      <div className="absolute top-4 right-20 flex items-center -space-x-2 z-50">
-        {activeUsers.map((user) => (
-          <div
-            key={user.userId}
-            title={user.name}
-            className="w-8 h-8 rounded-full bg-cyan-700 border-2 border-[#111] flex items-center justify-center text-white text-xs font-bold shadow-md cursor-help transition-transform hover:-translate-y-1 hover:z-10"
-          >
-            {/* Display the first letter of their username */}
-            {user.name ? user.name.charAt(0).toUpperCase() : '?'}
-          </div>
-        ))}
-      </div>
       <Stage
         width={stageSize.width}
         height={stageSize.height}
