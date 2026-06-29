@@ -34,12 +34,9 @@ function CanvasBoard({ activeTool, setActiveTool, selectedElementIds, setSelecte
   useEffect(() => {
       if (!projectId) return;
 
-      // 1. Fetch the JWT token from localStorage
-      const token = localStorage.getItem('token'); 
-
-      // 2. Initialize the socket connection, passing the token in the auth payload
+      // 2. Initialize the socket connection, with credentials to attach httpOnly cookies
       socketRef.current = io('http://localhost:5000', {
-          auth: { token }
+          withCredentials: true 
       });
 
       // 3. Once successfully connected, emit the join-project event
