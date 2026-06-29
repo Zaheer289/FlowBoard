@@ -105,9 +105,14 @@ export const getProjects = async (req, res) => {
     const userId = req.user.id || req.user._id;
 
     const { archived, starred } = req.query;
-    let query = { owner: new mongoose.Types.ObjectId(userId) }
+    let query = { 
+        $or: [
+            { owner: new mongoose.Types.ObjectId(userId) },
+            { collaborators: new mongoose.Types.ObjectId(userId) }
+        ]
+    };
 
-    const projects = await Project.find(query).populate('collaborators', '_id username').sort({ updatedAt: -1 });
+    const projects = await Project.find(query).populate('collaborators', '_id username name').sort({ updatedAt: -1 });
 
     res.status(200).json({ message: "Data retrieved successfully!", data: projects });
 
@@ -115,13 +120,16 @@ export const getProjects = async (req, res) => {
 
 export const getProjectById = async (req, res) => {
     try {
-        const project = await Project.findById(req.params.id).populate('content');
+        const project = await Project.findById(req.params.id)
+            .populate('content')
+            .populate('collaborators', '_id username name');
+            
         if (!project) return res.status(404).json({ message: "Project not found" });
         
         // Check authorization: Is the user the owner OR a collaborator?
         const isOwner = project.owner.toString() === (req.user.id || req.user._id).toString();
         const isCollaborator = project.collaborators.some(
-            collabId => collabId.toString() === (req.user.id || req.user._id).toString()
+            c => c._id.toString() === (req.user.id || req.user._id).toString()
         );
 
         if (!isOwner && !isCollaborator) {

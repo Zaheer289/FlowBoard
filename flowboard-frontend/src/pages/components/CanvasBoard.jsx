@@ -32,47 +32,47 @@ function CanvasBoard({ activeTool, setActiveTool, selectedElementIds, setSelecte
   }, []);
 
   useEffect(() => {
-      if (!projectId) return;
+    if (!projectId) return;
 
-      // 2. Initialize the socket connection, with credentials to attach httpOnly cookies
-      socketRef.current = io('http://localhost:5000', {
-          withCredentials: true 
+    // 2. Initialize the socket connection, with credentials to attach httpOnly cookies
+    socketRef.current = io('http://localhost:5000', {
+      withCredentials: true
+    });
+
+    // 3. Once successfully connected, emit the join-project event
+    socketRef.current.on('connect', () => {
+      console.log('Connected to WebSocket server');
+      socketRef.current.emit('join-project', { projectId });
+    });
+
+    // Listen for new users joining
+    socketRef.current.on('user-joined', (newUser) => {
+      setActiveUsers((prev) => {
+        // Prevent duplicates just in case of reconnects
+        if (prev.some(u => u.userId === newUser.userId)) return prev;
+        return [...prev, newUser];
       });
+    });
 
-      // 3. Once successfully connected, emit the join-project event
-      socketRef.current.on('connect', () => {
-          console.log('Connected to WebSocket server');
-          socketRef.current.emit('join-project', { projectId });
-      });
+    // Listen for users leaving
+    socketRef.current.on('user-left', ({ userId }) => {
+      setActiveUsers((prev) => prev.filter(u => u.userId !== userId));
+    });
 
-      // Listen for new users joining
-      socketRef.current.on('user-joined', (newUser) => {
-          setActiveUsers((prev) => {
-              // Prevent duplicates just in case of reconnects
-              if (prev.some(u => u.userId === newUser.userId)) return prev;
-              return [...prev, newUser];
-          });
-      });
+    // 4. Basic error logging for authentication failures
+    socketRef.current.on('connect_error', (err) => {
+      console.error('Socket connection error:', err.message);
+    });
 
-      // Listen for users leaving
-      socketRef.current.on('user-left', ({ userId }) => {
-          setActiveUsers((prev) => prev.filter(u => u.userId !== userId));
-      });
-
-      // 4. Basic error logging for authentication failures
-      socketRef.current.on('connect_error', (err) => {
-          console.error('Socket connection error:', err.message);
-      });
-
-      // 5. CRITICAL CLEANUP: Disconnect the socket when the component unmounts
-      return () => {
-          if (socketRef.current) {
-              socketRef.current.off('user-joined');
-              socketRef.current.off('user-left');
-              socketRef.current.disconnect();
-              console.log('Disconnected from WebSocket server');
-          }
-      };
+    // 5. CRITICAL CLEANUP: Disconnect the socket when the component unmounts
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.off('user-joined');
+        socketRef.current.off('user-left');
+        socketRef.current.disconnect();
+        console.log('Disconnected from WebSocket server');
+      }
+    };
   }, [projectId]);
 
   useEffect(() => {
@@ -249,16 +249,16 @@ function CanvasBoard({ activeTool, setActiveTool, selectedElementIds, setSelecte
     <div ref={containerRef} className="w-full h-full overflow-hidden fb-canvas-container" style={{ position: 'relative' }}>
       {/* Active Users Avatar Stack */}
       <div className="absolute top-4 right-20 flex items-center -space-x-2 z-50">
-          {activeUsers.map((user) => (
-              <div 
-                  key={user.userId} 
-                  title={user.username}
-                  className="w-8 h-8 rounded-full bg-cyan-700 border-2 border-[#111] flex items-center justify-center text-white text-xs font-bold shadow-md cursor-help transition-transform hover:-translate-y-1 hover:z-10"
-              >
-                  {/* Display the first letter of their username */}
-                  {user.username ? user.username.charAt(0).toUpperCase() : '?'}
-              </div>
-          ))}
+        {activeUsers.map((user) => (
+          <div
+            key={user.userId}
+            title={user.name}
+            className="w-8 h-8 rounded-full bg-cyan-700 border-2 border-[#111] flex items-center justify-center text-white text-xs font-bold shadow-md cursor-help transition-transform hover:-translate-y-1 hover:z-10"
+          >
+            {/* Display the first letter of their username */}
+            {user.name ? user.name.charAt(0).toUpperCase() : '?'}
+          </div>
+        ))}
       </div>
       <Stage
         width={stageSize.width}

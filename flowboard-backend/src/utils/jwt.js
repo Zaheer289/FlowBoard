@@ -5,6 +5,7 @@ export const generateAccessToken = (user) => {
         {
             id: user._id,
             email: user.email,
+            name: user.name
         },
         process.env.ACCESS_TOKEN_JWT,
         {
@@ -18,6 +19,7 @@ export const generateRefreshToken = (user) => {
         {
             id: user._id,
             email: user.email,
+            name: user.name
         },
         process.env.REFRESH_TOKEN_JWT,
         {
