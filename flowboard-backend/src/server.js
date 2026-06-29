@@ -8,6 +8,7 @@ import cors from 'cors';
 import cookieParser from "cookie-parser";
 import authRouter from "./routes/authRoutes.js";
 import projectRouter from "./routes/projectRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 import roomHandler from "./sockets/roomHandler.js";
 
 dotenv.config();
@@ -30,6 +31,7 @@ app.get('/', (req, res) => {
 })
 app.use("/api/auth", authRouter);
 app.use("/api", projectRouter);
+app.use("/api", userRoutes);
 connectDB();
 
 const io = new Server(httpServer, {

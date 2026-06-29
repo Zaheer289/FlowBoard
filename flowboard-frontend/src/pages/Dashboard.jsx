@@ -137,38 +137,38 @@ function Dashboard() {
                     </button>
                 </div>
                 <div className="px-8">
-                    <ProjectRow 
-                        title="Recent Projects" 
-                        projects={filteredProjects} 
-                        handleLoadProject={handleLoadProject} 
-                        handleDeleteProject={handleDeleteProject} 
+                    <ProjectRow
+                        title="Recent Projects"
+                        projects={filteredProjects}
+                        handleLoadProject={handleLoadProject}
+                        handleDeleteProject={handleDeleteProject}
                         handleOpenSettings={handleOpenSettings}
                     />
-                    <ProjectRow 
-                        title="Starred Projects" 
-                        projects={filteredProjects} 
-                        handleLoadProject={handleLoadProject} 
-                        handleDeleteProject={handleDeleteProject} 
+                    <ProjectRow
+                        title="Starred Projects"
+                        projects={filteredProjects}
+                        handleLoadProject={handleLoadProject}
+                        handleDeleteProject={handleDeleteProject}
                         handleOpenSettings={handleOpenSettings}
                     />
-                    <ProjectRow 
-                        title="Shared Projects" 
-                        projects={filteredProjects} 
-                        handleLoadProject={handleLoadProject} 
-                        handleDeleteProject={handleDeleteProject} 
+                    <ProjectRow
+                        title="Shared Projects"
+                        projects={filteredProjects}
+                        handleLoadProject={handleLoadProject}
+                        handleDeleteProject={handleDeleteProject}
                         handleOpenSettings={handleOpenSettings}
                     />
-                    <ProjectRow 
-                        title="Community" 
-                        projects={[]} 
-                        handleLoadProject={handleLoadProject} 
-                        handleDeleteProject={handleDeleteProject} 
+                    <ProjectRow
+                        title="Community"
+                        projects={[]}
+                        handleLoadProject={handleLoadProject}
+                        handleDeleteProject={handleDeleteProject}
                         handleOpenSettings={handleOpenSettings}
                     />
                 </div>
             </main>
             <NewProjectModal isOpen={isModalOpen} onClose={() => setModalOpen(false)} />
-            
+
             <Modal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} title="Project Settings">
                 {editingProject && (
                     <form onSubmit={handleUpdateProject} className="space-y-4">
@@ -208,9 +208,9 @@ function Dashboard() {
                                     <span
                                         key={i}
                                         className="bg-cyan-600 hover:bg-cyan-700 px-2 py-1 rounded-md text-sm text-white cursor-pointer"
-                                        onClick={() => setEditingProject({ 
-                                            ...editingProject, 
-                                            tags: editingProject.tags.filter((_, idx) => idx !== i) 
+                                        onClick={() => setEditingProject({
+                                            ...editingProject,
+                                            tags: editingProject.tags.filter((_, idx) => idx !== i)
                                         })}
                                     >
                                         {tag} &times;
@@ -230,17 +230,21 @@ function Dashboard() {
                             />
                             {collabError && <p className="text-red-500 text-xs mt-1">{collabError}</p>}
                             <div className="flex flex-wrap mt-2 gap-2">
-                                {(editingProject.collaborators || []).map((collab, i) => {
-                                    const nameToDisplay = collab.username || collab;
+                                {(editingProject.collaborators || []).map((collab) => {
+                                    // 1. Check for username, then name. 
+                                    // 2. If it's just a string ID, show that. 
+                                    // 3. Fallback to 'Unknown' to guarantee it never returns an object.
+                                    const nameToDisplay = collab.username || collab.name || (typeof collab === 'string' ? collab : 'Unknown User');
                                     const idToFilter = collab._id || collab;
+
                                     return (
                                         <span
-                                            key={i}
+                                            key={idToFilter} // Using the actual ID prevents rendering bugs when deleting pills
                                             className="bg-cyan-600 hover:bg-cyan-700 px-2 py-1 rounded-md text-sm text-white cursor-pointer"
-                                            onClick={() => setEditingProject({ 
-                                                ...editingProject, 
-                                                collaborators: editingProject.collaborators.filter(c => (c._id || c) !== idToFilter) 
-                                            })}
+                                            onClick={() => setEditingProject(prev => ({
+                                                ...prev,
+                                                collaborators: prev.collaborators.filter(c => (c._id || c) !== idToFilter)
+                                            }))}
                                         >
                                             {nameToDisplay} &times;
                                         </span>

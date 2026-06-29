@@ -78,7 +78,7 @@ export const deleteProject = async (req, res) => {
 
 export const updateProject = async (req, res) => {
     const projectId = req.params.id;
-    const { name, visibility, description, tags } = req.body;
+    const { name, visibility, description, tags, collaborators } = req.body;
     try {
         const project = await Project.findById(projectId);
         if (!project) return res.status(404).json({ message: "Project not found" });
@@ -90,6 +90,7 @@ export const updateProject = async (req, res) => {
         if (visibility !== undefined) project.visibility = visibility;
         if (description !== undefined) project.description = description;
         if (tags !== undefined) project.tags = tags;
+        if (collaborators !== undefined) project.collaborators = collaborators;
 
         await project.save();
 
